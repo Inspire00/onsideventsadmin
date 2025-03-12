@@ -3,27 +3,38 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase Storage
 import { doc, updateDoc } from 'firebase/firestore'; // Firestore
-import { db,storage } from '../config/firebase';
+import { db, storage } from '../config/firebase';
 
-
-   
-
-
+// Define DetailRow component
+const DetailRow = ({ label, value, children }) => {
+  return (
+    <div className="flex flex-row items-center">
+      <span className="text-[#ea176b] text-lg font-medium">{label}: </span>
+      {children ? (
+        <div className="ml-2 text-gray-700 p-2 text-sm font-medium">{children}</div> {/* Fixed p-[<7>] */}
+      ) : (
+        <span className="ml-2 text-[#0cbb9b] p-2 text-base font-medium">{value}</span> {/* Fixed p-[<7>] */}
+      )}
+    </div>
+  );
+};
 
 export default function EventCard({ event }) {
+  // All hooks at the top, unconditionally
+  const [expanded, setExpanded] = useState(false);
+  const [pdfs, setPdfs] = useState({
+    menu_pdf: event?.menu_pdf || '',
+    fancy_pdf: event?.fancy_pdf || '',
+    norman_pdf: event?.norman_pdf || '',
+  });
+  const [newPdfUrl, setNewPdfUrl] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Early return after hooks
   if (!event) {
     console.error("EventCard received an undefined event prop");
     return null;
   }
-
-  const [expanded, setExpanded] = useState(false);
-  const [pdfs, setPdfs] = useState({
-    menu_pdf: event.menu_pdf || '',
-    fancy_pdf: event.fancy_pdf || '',
-    norman_pdf: event.norman_pdf || '',
-  });
-  const [newPdfUrl, setNewPdfUrl] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
 
   const toggleExpanded = () => setExpanded(!expanded);
 
@@ -31,7 +42,9 @@ export default function EventCard({ event }) {
     if (!timeString) return 'N/A';
     const [hours, minutes] = timeString.split(':').map(Number);
     return new Intl.DateTimeFormat('en-US', {
-      hour: 'numeric', minute: '2-digit', hour12: true,
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
     }).format(new Date(0, 0, 0, hours, minutes));
   };
 
@@ -86,7 +99,7 @@ export default function EventCard({ event }) {
         // Generate a unique filename with timestamp
         const timestamp = Date.now();
         const fileName = `${timestamp}_${file.name}`;
-        
+
         // Determine storage folder based on available slot
         let storageFolder;
         if (!pdfs.menu_pdf) storageFolder = 'menu_pdfs';
@@ -133,8 +146,6 @@ export default function EventCard({ event }) {
   console.log("Events data:", event);
   console.log("Current PDFs:", pdfs);
 
-     
-
   return (
     <motion.div
       className="bg-rose-50 rounded-lg shadow-md overflow-hidden cursor-pointer"
@@ -147,15 +158,15 @@ export default function EventCard({ event }) {
       <div className="px-4 py-5 bg-gradient-to-r from-[#ea176b] to-[#0cbb9b]">
         <h2 className="text-lg font-semibold text-white">{event.compName}</h2>
         <p className="text-sm text-white">
-          {eventDate.toLocaleDateString('en-US', { 
+          {eventDate.toLocaleDateString('en-US', {
             weekday: 'long',
-            day: 'numeric', 
-            month: 'long', 
-            year: 'numeric' 
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
           })}
         </p>
       </div>
-      
+
       <div className="px-4 py-3">
         <div className="flex justify-between items-center">
           <p className="text-base font-bold text-gray-700">Client: {event.client}</p>
@@ -163,24 +174,24 @@ export default function EventCard({ event }) {
             animate={{ rotate: expanded ? 180 : 0 }}
             transition={{ duration: 0.3 }}
           >
-            <svg 
-              className="w-5 h-5 text-gray-500" 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24" 
+            <svg
+              className="w-5 h-5 text-gray-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth="2" 
-                d={expanded ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d={expanded ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"}
               />
             </svg>
           </motion.div>
         </div>
       </div>
-      
+
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -204,20 +215,23 @@ export default function EventCard({ event }) {
               </DetailRow>
               <DetailRow label="Function Manager" value={event.function_mgr} />
               <DetailRow label="Sales Associate" value={event.sales_associate} />
-              
+
               {event.notes && (
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <h4 className="text-sm font-medium text-gray-700">Notes:</h4>
                   <p className="mt-1 text-sm text-gray-600">{event.notes}</p>
                 </div>
               )}
-              
+
               {/* PDF Section */}
               <div className="mt-4 pt-4 border-t border-gray-100">
                 <div className="flex justify-between items-center">
                   <h4 className="text-sm font-medium text-gray-700">PDF Documents:</h4>
                   <button
-                    onClick={(e) => { e.stopPropagation(); isEditing ? saveChanges() : toggleEditMode(); }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      isEditing ? saveChanges() : toggleEditMode();
+                    }}
                     className="text-xs text-blue-600 hover:underline"
                   >
                     {isEditing ? 'Save' : 'Edit PDFs'}
@@ -227,21 +241,35 @@ export default function EventCard({ event }) {
                 <div className="flex flex-wrap gap-2 mt-2">
                   {pdfs.menu_pdf && (
                     <div className="flex items-center">
-                      <a 
-                        href={pdfs.menu_pdf} 
-                        target="_blank" 
+                      <a
+                        href={pdfs.menu_pdf}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-2 text-xs bg-[#ea176b] text-white rounded-md inline-flex items-center"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Menu PDF
-                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        <svg
+                          className="w-4 h-4 ml-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
                         </svg>
                       </a>
                       {isEditing && (
                         <button
-                          onClick={(e) => { e.stopPropagation(); removePdf('menu_pdf'); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removePdf('menu_pdf');
+                          }}
                           className="ml-2 text-xs text-red-600 hover:text-red-800"
                         >
                           Remove
@@ -251,21 +279,35 @@ export default function EventCard({ event }) {
                   )}
                   {pdfs.fancy_pdf && (
                     <div className="flex items-center">
-                      <a 
-                        href={pdfs.fancy_pdf} 
-                        target="_blank" 
+                      <a
+                        href={pdfs.fancy_pdf}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-2 text-xs bg-[#0cbb9b] text-white rounded-md inline-flex items-center"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Fancy Affairs PDF
-                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        <svg
+                          className="w-4 h-4 ml-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
                         </svg>
                       </a>
                       {isEditing && (
                         <button
-                          onClick={(e) => { e.stopPropagation(); removePdf('fancy_pdf'); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removePdf('fancy_pdf');
+                          }}
                           className="ml-2 text-xs text-red-600 hover:text-red-800"
                         >
                           Remove
@@ -275,21 +317,35 @@ export default function EventCard({ event }) {
                   )}
                   {pdfs.norman_pdf && (
                     <div className="flex items-center">
-                      <a 
-                        href={pdfs.norman_pdf} 
-                        target="_blank" 
+                      <a
+                        href={pdfs.norman_pdf}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-2 text-xs bg-[#e3ed18] text-black rounded-md inline-flex items-center"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Norman PDF
-                        <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        <svg
+                          className="w-4 h-4 ml-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
                         </svg>
                       </a>
                       {isEditing && (
                         <button
-                          onClick={(e) => { e.stopPropagation(); removePdf('norman_pdf'); }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removePdf('norman_pdf');
+                          }}
                           className="ml-2 text-xs text-red-600 hover:text-red-800"
                         >
                           Remove
@@ -310,7 +366,11 @@ export default function EventCard({ event }) {
                       className="w-full px-3 py-2 text-sm border rounded-md"
                     />
                     <button
-                      onClick={(e) => { e.stopPropagation(); addNewPdf(newPdfUrl); setNewPdfUrl(''); }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addNewPdf(newPdfUrl);
+                        setNewPdfUrl('');
+                      }}
                       className="px-3 py-2 text-xs bg-blue-600 text-white rounded-md"
                     >
                       Add PDF URL
@@ -333,21 +393,5 @@ export default function EventCard({ event }) {
         )}
       </AnimatePresence>
     </motion.div>
-  );
-}
-
-
-
-// Define DetailRow component
-const DetailRow = ({ label, value, children }) => {
-  return (
-    <div className="flex flex-row items-center">
-      <span className="text-[#ea176b] text-lg font-medium">{label}: </span>
-      {children ? (
-        <div className="ml-2 p-[<7>] text-gray-700 text-sm font-medium">{children}</div>
-      ) : (
-        <span className="ml-2 p-[<7>] text-[#0cbb9b] text-base font-medium">{value}</span>
-      )}
-    </div>
   );
 }
