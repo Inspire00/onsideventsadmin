@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../config/firebase'; // Adjust path
+import { auth } from '../config/firebase'; // Adjust path
 import { useRouter } from 'next/navigation';
 
 export default function Login() {
