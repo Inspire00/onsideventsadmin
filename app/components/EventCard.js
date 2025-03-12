@@ -6,19 +6,7 @@ import { doc, updateDoc } from 'firebase/firestore'; // Firestore
 import { db,storage } from '../config/firebase';
 
 
-   // Define DetailRow component
-   const DetailRow = ({ label, value, children }) => {
-    return (
-      <div className="flex flex-row items-center">
-        <span className="text-[#ea176b] text-lg font-medium">{label}: </span>
-        {children ? (
-          <div className="ml-2 p-[<7>] text-gray-700 text-sm font-medium">{children}</div>
-        ) : (
-          <span className="ml-2 p-[<7>] text-[#0cbb9b] text-base font-medium">{value}</span>
-        )}
-      </div>
-    );
-  };
+   
 
 
 
@@ -348,3 +336,18 @@ export default function EventCard({ event }) {
   );
 }
 
+
+
+// Define DetailRow component
+const DetailRow = ({ label, value, children }) => {
+  return (
+    <div className="flex flex-row items-center">
+      <span className="text-[#ea176b] text-lg font-medium">{label}: </span>
+      {children ? (
+        <div className="ml-2 p-[<7>] text-gray-700 text-sm font-medium">{children}</div>
+      ) : (
+        <span className="ml-2 p-[<7>] text-[#0cbb9b] text-base font-medium">{value}</span>
+      )}
+    </div>
+  );
+}
