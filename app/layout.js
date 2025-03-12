@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { auth } from './config/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
+import Navbar from './components/Navbar';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,7 +57,7 @@ export default function RootLayout({ children }) {
       if (unsubscribe) unsubscribe();
       clearTimeout(timeout);
     };
-  }, []);
+  }, [pathname]);
 
   if (loading) {
     return (
