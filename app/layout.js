@@ -45,17 +45,10 @@ export default function RootLayout({ children }) {
       setLoading(false);
     }
 
-    const timeout = setTimeout(() => {
-      if (loading) {
-        console.error("Auth check timed out after 10s");
-        setError("Authentication timed out. Please check Firebase config.");
-        setLoading(false);
-      }
-    }, 10000);
-
+   
     return () => {
       if (unsubscribe) unsubscribe();
-      clearTimeout(timeout);
+      
     };
   }, [pathname]);
 
