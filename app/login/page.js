@@ -1,125 +1,69 @@
-// pages/login.js
-"use client"
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
-import { initializeApp } from 'firebase/app';
-import firebaseConfig from '../config/firebase';
+// app/login/page.js
+"use client";
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+import { useState } from 'react';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../config/firebase'; // Adjust path
+import { useRouter } from 'next/navigation';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
   const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
-    setLoading(true);
-
-    if (!email || !password) {
-      setError('Please enter both email and password');
-      setLoading(false);
-      return;
-    }
-
     try {
-      // Use Firebase Auth directly without Firestore check first
       await signInWithEmailAndPassword(auth, email, password);
-      
-      // If successful, redirect to home page
-      router.push('/');
-    } catch (error) {
-      // Handle Firebase Auth errors
-      setLoading(false);
-      
-      switch (error.code) {
-        case 'auth/user-not-found':
-          setError('User does not exist');
-          break;
-        case 'auth/wrong-password':
-          setError('Invalid password');
-          break;
-        case 'auth/invalid-email':
-          setError('Invalid email format');
-          break;
-        case 'auth/too-many-requests':
-          setError('Too many failed attempts. Please try again later');
-          break;
-        default:
-          setError('Login failed: ' + error.message);
-      }
+      router.push('/dashboard');
+    } catch (err) {
+      setError(err.message);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#111]">
-      <div className="w-full max-w-md p-8 rounded-xl shadow-lg bg-[#1a1a1a] border border-gray-800">
-        <h2 className="text-3xl font-bold text-center mb-8 text-[#ea176b]">Login</h2>
-        
-        <form onSubmit={handleLogin} className="space-y-6">
-          {error && (
-            <div className="bg-red-500 bg-opacity-20 border border-red-500 text-red-500 px-4 py-3 rounded relative" role="alert">
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
-          
+    <div className="min-h-screen bg-gray-500 flex items-center justify-center">
+      <div className="bg-white rounded-lg shadow-md p-6 w-full max-w-md">
+        <h1 className="text-2xl font-bold text-[#ea176b] mb-6 text-center">Login</h1>
+        <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
             </label>
             <input
               id="email"
-              name="email"
               type="email"
-              required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b] text-white"
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b]"
+              placeholder="Email"
             />
           </div>
-
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Password
             </label>
             <input
               id="password"
-              name="password"
               type="password"
-              required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b] text-white"
-              pattern="[a-zA-Z0-9]+" // Alphanumeric validation
-              title="Password must contain only letters and numbers"
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b]"
+              placeholder="Password"
             />
           </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#ea176b] hover:bg-[#d0065a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ea176b] transition duration-200 disabled:opacity-50"
-            >
-              {loading ? 'Logging in...' : 'Log In'}
-            </button>
-          </div>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <button
+            type="submit"
+            className="w-full bg-gradient-to-r from-[#ea176b] to-[#0cbb9b] text-white py-2 px-4 rounded-md hover:from-[#c01059] hover:to-[#0a9a81]"
+          >
+            Login
+          </button>
         </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-gray-400">
-            Don't have an account?{' '}
-            <a href="/signup" className="font-medium text-[#ea176b] hover:text-[#d0065a]">
-              Sign up
-            </a>
-          </p>
-        </div>
+        <p className="mt-4 text-center text-gray-700">
+          Don&apos;t have an account? <a href="/signup" className="text-[#ea176b] hover:underline">Sign up</a>
+        </p> {/* Escaped ' at line ~117 */}
       </div>
     </div>
   );

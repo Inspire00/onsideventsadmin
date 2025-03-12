@@ -6,6 +6,22 @@ import { doc, updateDoc } from 'firebase/firestore'; // Firestore
 import { db,storage } from '../config/firebase';
 
 
+   // Define DetailRow component
+   const DetailRow = ({ label, value, children }) => {
+    return (
+      <div className="flex flex-row items-center">
+        <span className="text-[#ea176b] text-lg font-medium">{label}: </span>
+        {children ? (
+          <div className="ml-2 p-[<7>] text-gray-700 text-sm font-medium">{children}</div>
+        ) : (
+          <span className="ml-2 p-[<7>] text-[#0cbb9b] text-base font-medium">{value}</span>
+        )}
+      </div>
+    );
+  };
+
+
+
 export default function EventCard({ event }) {
   if (!event) {
     console.error("EventCard received an undefined event prop");
@@ -129,20 +145,7 @@ export default function EventCard({ event }) {
   console.log("Events data:", event);
   console.log("Current PDFs:", pdfs);
 
-        // Define DetailRow component
-      const DetailRow = ({ label, value, children }) => {
-        return (
-          <div className="flex flex-row items-center">
-            <span className="text-[#ea176b] text-lg font-medium">{label}: </span>
-            {children ? (
-              <div className="ml-2 p-[<7>] text-gray-700 text-sm font-medium">{children}</div>
-            ) : (
-              <span className="ml-2 p-[<7>] text-[#0cbb9b] text-base font-medium">{value}</span>
-            )}
-          </div>
-        );
-      };
-
+     
 
   return (
     <motion.div
@@ -345,11 +348,3 @@ export default function EventCard({ event }) {
   );
 }
 
-function DetailRow({ label, value, children }) {
-  return (
-    <div>
-      <h4 className="text-sm font-medium text-gray-700">{label}:</h4>
-      {value ? <p className="text-sm text-gray-600">{value}</p> : children}
-    </div>
-  );
-}
