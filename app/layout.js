@@ -2,10 +2,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { auth } from './config/firebase';
 import { onAuthStateChanged } from 'firebase/auth';
-import Navbar from './components/Navbar';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,21 +18,31 @@ const geistMono = Geist_Mono({
 
 export default function RootLayout({ children }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log("Starting auth check...");
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      console.log("Auth state resolved:", currentUser ? "Logged in" : "Not logged in");
-      setUser(currentUser);
-      setLoading(false);
-    }, (err) => {
-      console.error("Auth callback error:", err);
+    console.log("Starting auth check for path:", pathname);
+    console.log("Firebase auth object:", auth);
+
+    let unsubscribe;
+    try {
+      unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        console.log("Auth state resolved:", currentUser ? "Logged in" : "Not logged in");
+        setUser(currentUser);
+        setLoading(false);
+      }, (err) => {
+        console.error("Auth callback error:", err);
+        setError(err.message);
+        setLoading(false);
+      });
+    } catch (err) {
+      console.error("Firebase initialization failed:", err);
       setError(err.message);
       setLoading(false);
-    });
+    }
 
     const timeout = setTimeout(() => {
       if (loading) {
@@ -44,10 +53,10 @@ export default function RootLayout({ children }) {
     }, 10000);
 
     return () => {
-      unsubscribe();
+      if (unsubscribe) unsubscribe();
       clearTimeout(timeout);
     };
-  }, [router]); // Keep router in deps to ensure effect runs once
+  }, []);
 
   if (loading) {
     return (
@@ -80,10 +89,10 @@ export default function RootLayout({ children }) {
     );
   }
 
-  if (!user) {
-    console.log("No user, redirecting to /");
+  if (!user && pathname !== '/') {
+    console.log("No user, redirecting to / from:", pathname);
     if (typeof window !== 'undefined') {
-      window.location.href = '/'; // Force full page reload
+      window.location.href = '/';
     }
     return (
       <html lang="en">
@@ -97,7 +106,18 @@ export default function RootLayout({ children }) {
     );
   }
 
-  console.log("Rendering main layout for user:", user.uid);
+  if (!user && pathname === '/') {
+    console.log("No user, on /, rendering login page");
+    return (
+      <html lang="en">
+        <body className={`${geistSans.variable} ${geistMono.variable}`}>
+          {children}
+        </body>
+      </html>
+    );
+  }
+
+  console.log("Rendering protected layout for user:", user?.uid);
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
