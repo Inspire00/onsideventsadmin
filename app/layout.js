@@ -26,33 +26,37 @@ export default function RootLayout({ children }) {
   useEffect(() => {
     console.log("Starting auth check...");
     let unsubscribe;
+    let timeout;
+
     try {
       unsubscribe = onAuthStateChanged(auth, (currentUser) => {
         console.log("Auth state resolved:", currentUser ? "Logged in" : "Not logged in");
         setUser(currentUser);
         setLoading(false);
+        clearTimeout(timeout); // Explicitly clear timeout on resolution
       }, (err) => {
         console.error("Auth callback error:", err);
         setError(err.message);
         setLoading(false);
+        clearTimeout(timeout); // Clear on error too
       });
+
+      timeout = setTimeout(() => {
+        if (loading) {
+          console.error("Auth check timed out after 10s");
+          setError("Authentication timed out. Please check Firebase config.");
+          setLoading(false);
+        }
+      }, 10000);
     } catch (err) {
       console.error("Firebase auth initialization failed:", err);
       setError(err.message);
       setLoading(false);
     }
 
-    const timeout = setTimeout(() => {
-      if (loading) {
-        console.error("Auth check timed out after 10s");
-        setError("Authentication timed out. Please check Firebase config.");
-        setLoading(false);
-      }
-    }, 10000);
-
     return () => {
       if (unsubscribe) unsubscribe();
-      clearTimeout(timeout);
+      if (timeout) clearTimeout(timeout); // Ensure cleanup
     };
   }, [router]);
 
@@ -90,7 +94,16 @@ export default function RootLayout({ children }) {
   if (!user) {
     console.log("No user, redirecting to /");
     router.push('/');
-    return null;
+    return (
+      <html lang="en">
+        <body className="min-h-screen bg-gray-500 flex items-center justify-center">
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 border-4 border-[#ea176b] border-t-[#e3ed18] rounded-full animate-spin"></div>
+            <p className="mt-4 text-lg text-white">Redirecting...</p>
+          </div>
+        </body>
+      </html>
+    ); // Show redirecting UI instead of null
   }
 
   console.log("Rendering main layout for user:", user.uid);
