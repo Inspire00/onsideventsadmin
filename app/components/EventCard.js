@@ -1,8 +1,8 @@
 "use client";
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'; // Firebase Storage
-import { doc, updateDoc } from 'firebase/firestore'; // Firestore
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { doc, updateDoc } from 'firebase/firestore';
 import { db, storage } from '../config/firebase';
 
 // Define DetailRow component
@@ -11,16 +11,15 @@ const DetailRow = ({ label, value, children }) => {
     <div className="flex flex-row items-center">
       <span className="text-[#ea176b] text-lg font-medium">{label}: </span>
       {children ? (
-        <div className="ml-2 text-gray-700 p-2 text-sm font-medium">{children}</div> {/* Fixed p-[<7>] */}
+        <div className="ml-2 text-gray-700 text-sm font-medium">{children}</div>
       ) : (
-        <span className="ml-2 text-[#0cbb9b] p-2 text-base font-medium">{value}</span> {/* Fixed p-[<7>] */}
+        <span className="ml-2 text-[#0cbb9b] text-base font-medium">{value}</span>
       )}
     </div>
   );
 };
 
 export default function EventCard({ event }) {
-  // All hooks at the top, unconditionally
   const [expanded, setExpanded] = useState(false);
   const [pdfs, setPdfs] = useState({
     menu_pdf: event?.menu_pdf || '',
@@ -30,7 +29,6 @@ export default function EventCard({ event }) {
   const [newPdfUrl, setNewPdfUrl] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
-  // Early return after hooks
   if (!event) {
     console.error("EventCard received an undefined event prop");
     return null;
@@ -91,16 +89,12 @@ export default function EventCard({ event }) {
     }
   };
 
-  // Upload PDF to Firebase Storage and update Firestore
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (file && file.type === 'application/pdf') {
       try {
-        // Generate a unique filename with timestamp
         const timestamp = Date.now();
         const fileName = `${timestamp}_${file.name}`;
-
-        // Determine storage folder based on available slot
         let storageFolder;
         if (!pdfs.menu_pdf) storageFolder = 'menu_pdfs';
         else if (!pdfs.fancy_pdf) storageFolder = 'fancy_pdfs';
@@ -109,15 +103,10 @@ export default function EventCard({ event }) {
           console.warn("No available PDF slots!");
           return;
         }
-
-        // Upload to Firebase Storage
         const storageRef = ref(storage, `${storageFolder}/${fileName}`);
         await uploadBytes(storageRef, file);
         const downloadUrl = await getDownloadURL(storageRef);
-
-        // Update local state
         addNewPdf(downloadUrl);
-
         console.log(`Uploaded ${file.name} to ${storageFolder}: ${downloadUrl}`);
       } catch (error) {
         console.error("Error uploading PDF:", error);
@@ -127,7 +116,6 @@ export default function EventCard({ event }) {
     }
   };
 
-  // Save PDF changes to Firestore
   const saveChanges = async () => {
     try {
       const eventRef = doc(db, "function_pack", event.id);
@@ -166,7 +154,6 @@ export default function EventCard({ event }) {
           })}
         </p>
       </div>
-
       <div className="px-4 py-3">
         <div className="flex justify-between items-center">
           <p className="text-base font-bold text-gray-700">Client: {event.client}</p>
@@ -191,7 +178,6 @@ export default function EventCard({ event }) {
           </motion.div>
         </div>
       </div>
-
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -215,15 +201,12 @@ export default function EventCard({ event }) {
               </DetailRow>
               <DetailRow label="Function Manager" value={event.function_mgr} />
               <DetailRow label="Sales Associate" value={event.sales_associate} />
-
               {event.notes && (
                 <div className="mt-4 pt-4 border-t border-gray-100">
                   <h4 className="text-sm font-medium text-gray-700">Notes:</h4>
                   <p className="mt-1 text-sm text-gray-600">{event.notes}</p>
                 </div>
               )}
-
-              {/* PDF Section */}
               <div className="mt-4 pt-4 border-t border-gray-100">
                 <div className="flex justify-between items-center">
                   <h4 className="text-sm font-medium text-gray-700">PDF Documents:</h4>
@@ -237,7 +220,6 @@ export default function EventCard({ event }) {
                     {isEditing ? 'Save' : 'Edit PDFs'}
                   </button>
                 </div>
-
                 <div className="flex flex-wrap gap-2 mt-2">
                   {pdfs.menu_pdf && (
                     <div className="flex items-center">
@@ -354,7 +336,6 @@ export default function EventCard({ event }) {
                     </div>
                   )}
                 </div>
-
                 {isEditing && (
                   <div className="mt-4 space-y-2">
                     <input
