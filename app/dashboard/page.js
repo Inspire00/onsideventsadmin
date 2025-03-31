@@ -60,7 +60,7 @@ export default function Dashboard() {
                 className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer"
               >
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-700 text-center">Create Function Pack</h3>
+                  <h3 className="text-lg font-semibold text-gray-700 text-center">Create Function Pack Envelope</h3>
                   <p className="mt-2 text-sm text-gray-500 text-center">Plan and manage event function packs</p>
                 </div>
               </div>
@@ -97,6 +97,29 @@ export default function Dashboard() {
                   <p className="mt-2 text-sm text-gray-500 text-center">View and schedule events</p>
                 </div>
               </div>
+
+               {/* Card 5: PackUpViews */}
+               <div
+                onClick={() => handleCardClick('/packupviews')}
+                className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+              >
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-700 text-center">Pack Up Views</h3>
+                  <p className="mt-2 text-sm text-gray-500 text-center">View all function pack ups</p>
+                </div>
+              </div>
+
+               {/* Card 6: Sports Pack Up Views */}
+               <div
+                onClick={() => handleCardClick('/sportpackupviews')}
+                className="bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+              >
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-700 text-center">Sport Pack Ups Views</h3>
+                  <p className="mt-2 text-sm text-gray-500 text-center">View all sports pack ups</p>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>

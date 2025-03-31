@@ -23,8 +23,12 @@ export default function EventCard({ event }) {
   const [expanded, setExpanded] = useState(false);
   const [pdfs, setPdfs] = useState({
     menu_pdf: event?.menu_pdf || '',
-    fancy_pdf: event?.fancy_pdf || '',
-    norman_pdf: event?.norman_pdf || '',
+    hiring_pdf1: event?.hiring_pdf1 || '',
+    hiring_pdf2: event?.hiring_pdf2 || '',
+    hiring_pdf3: event?.hiring_pdf3 || '',
+    hiring_pdf4: event?.hiring_pdf4 || '',
+    hiring_pdf5: event?.hiring_pdf5 || '',
+    hiring_pdf6: event?.hiring_pdf6 || '',
   });
   const [newPdfUrl, setNewPdfUrl] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -80,10 +84,18 @@ export default function EventCard({ event }) {
     if (!url) return;
     if (!pdfs.menu_pdf) {
       setPdfs((prev) => ({ ...prev, menu_pdf: url }));
-    } else if (!pdfs.fancy_pdf) {
-      setPdfs((prev) => ({ ...prev, fancy_pdf: url }));
-    } else if (!pdfs.norman_pdf) {
-      setPdfs((prev) => ({ ...prev, norman_pdf: url }));
+    } else if (!pdfs.hiring_pdf1) {
+      setPdfs((prev) => ({ ...prev, hiring_pdf1: url }));
+    } else if (!pdfs.hiring_pdf2) {
+      setPdfs((prev) => ({ ...prev, hiring_pdf2: url }));
+    } else if (!pdfs.hiring_pdf3) {
+      setPdfs((prev) => ({ ...prev, hiring_pdf3: url }));
+    } else if (!pdfs.hiring_pdf4) {
+      setPdfs((prev) => ({ ...prev, hiring_pdf4: url }));
+    } else if (!pdfs.hiring_pdf5) {
+      setPdfs((prev) => ({ ...prev, hiring_pdf5: url }));
+    } else if (!pdfs.hiring_pdf6) {
+      setPdfs((prev) => ({ ...prev, hiring_pdf6: url }));
     } else {
       console.warn("All PDF slots are filled!");
     }
@@ -97,12 +109,7 @@ export default function EventCard({ event }) {
         const fileName = `${timestamp}_${file.name}`;
         let storageFolder;
         if (!pdfs.menu_pdf) storageFolder = 'menu_pdfs';
-        else if (!pdfs.fancy_pdf) storageFolder = 'fancy_pdfs';
-        else if (!pdfs.norman_pdf) storageFolder = 'norman_pdfs';
-        else {
-          console.warn("No available PDF slots!");
-          return;
-        }
+        else storageFolder = 'hiring_pdfs'; // All hiring PDFs go to the same folder
         const storageRef = ref(storage, `${storageFolder}/${fileName}`);
         await uploadBytes(storageRef, file);
         const downloadUrl = await getDownloadURL(storageRef);
@@ -121,8 +128,12 @@ export default function EventCard({ event }) {
       const eventRef = doc(db, "function_pack", event.id);
       await updateDoc(eventRef, {
         menu_pdf: pdfs.menu_pdf || null,
-        fancy_pdf: pdfs.fancy_pdf || null,
-        norman_pdf: pdfs.norman_pdf || null,
+        hiring_pdf1: pdfs.hiring_pdf1 || null,
+        hiring_pdf2: pdfs.hiring_pdf2 || null,
+        hiring_pdf3: pdfs.hiring_pdf3 || null,
+        hiring_pdf4: pdfs.hiring_pdf4 || null,
+        hiring_pdf5: pdfs.hiring_pdf5 || null,
+        hiring_pdf6: pdfs.hiring_pdf6 || null,
       });
       console.log("PDFs updated in Firestore for event:", event.id);
       setIsEditing(false);
@@ -259,16 +270,16 @@ export default function EventCard({ event }) {
                       )}
                     </div>
                   )}
-                  {pdfs.fancy_pdf && (
+                  {pdfs.hiring_pdf1 && (
                     <div className="flex items-center">
                       <a
-                        href={pdfs.fancy_pdf}
+                        href={pdfs.hiring_pdf1}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-2 text-xs bg-[#0cbb9b] text-white rounded-md inline-flex items-center"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        Fancy Affairs PDF
+                        Hiring PDF 1
                         <svg
                           className="w-4 h-4 ml-1"
                           fill="none"
@@ -288,7 +299,7 @@ export default function EventCard({ event }) {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            removePdf('fancy_pdf');
+                            removePdf('hiring_pdf1');
                           }}
                           className="ml-2 text-xs text-red-600 hover:text-red-800"
                         >
@@ -297,16 +308,16 @@ export default function EventCard({ event }) {
                       )}
                     </div>
                   )}
-                  {pdfs.norman_pdf && (
+                  {pdfs.hiring_pdf2 && (
                     <div className="flex items-center">
                       <a
-                        href={pdfs.norman_pdf}
+                        href={pdfs.hiring_pdf2}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3 py-2 text-xs bg-[#e3ed18] text-black rounded-md inline-flex items-center"
+                        className="px-3 py-2 text-xs bg-[#0cbb9b] text-white rounded-md inline-flex items-center"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        Norman PDF
+                        Hiring PDF 2
                         <svg
                           className="w-4 h-4 ml-1"
                           fill="none"
@@ -326,7 +337,159 @@ export default function EventCard({ event }) {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            removePdf('norman_pdf');
+                            removePdf('hiring_pdf2');
+                          }}
+                          className="ml-2 text-xs text-red-600 hover:text-red-800"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {pdfs.hiring_pdf3 && (
+                    <div className="flex items-center">
+                      <a
+                        href={pdfs.hiring_pdf3}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-2 text-xs bg-[#0cbb9b] text-white rounded-md inline-flex items-center"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Hiring PDF 3
+                        <svg
+                          className="w-4 h-4 ml-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
+                      </a>
+                      {isEditing && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removePdf('hiring_pdf3');
+                          }}
+                          className="ml-2 text-xs text-red-600 hover:text-red-800"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {pdfs.hiring_pdf4 && (
+                    <div className="flex items-center">
+                      <a
+                        href={pdfs.hiring_pdf4}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-2 text-xs bg-[#0cbb9b] text-white rounded-md inline-flex items-center"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Hiring PDF 4
+                        <svg
+                          className="w-4 h-4 ml-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
+                      </a>
+                      {isEditing && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removePdf('hiring_pdf4');
+                          }}
+                          className="ml-2 text-xs text-red-600 hover:text-red-800"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {pdfs.hiring_pdf5 && (
+                    <div className="flex items-center">
+                      <a
+                        href={pdfs.hiring_pdf5}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-2 text-xs bg-[#0cbb9b] text-white rounded-md inline-flex items-center"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Hiring PDF 5
+                        <svg
+                          className="w-4 h-4 ml-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
+                      </a>
+                      {isEditing && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removePdf('hiring_pdf5');
+                          }}
+                          className="ml-2 text-xs text-red-600 hover:text-red-800"
+                        >
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {pdfs.hiring_pdf6 && (
+                    <div className="flex items-center">
+                      <a
+                        href={pdfs.hiring_pdf6}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-2 text-xs bg-[#0cbb9b] text-white rounded-md inline-flex items-center"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Hiring PDF 6
+                        <svg
+                          className="w-4 h-4 ml-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
+                      </a>
+                      {isEditing && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removePdf('hiring_pdf6');
                           }}
                           className="ml-2 text-xs text-red-600 hover:text-red-800"
                         >

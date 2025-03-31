@@ -26,19 +26,27 @@ export default function FunctionPack() {
     sales_associate: '',
     date: new Date(),
     menu_pdf: '',
-    fancy_pdf: '',
-    norman_pdf: ''
+    hiring_pdf1: '',
+    hiring_pdf2: '',
+    hiring_pdf3: '',
+    hiring_pdf4: '',
+    hiring_pdf5: '',
+    hiring_pdf6: ''
   });
 
   const [errors, setErrors] = useState({});
   const [pdfFiles, setPdfFiles] = useState({
     menu_pdf: null,
-    fancy_pdf: null,
-    norman_pdf: null
+    hiring_pdf1: null,
+    hiring_pdf2: null,
+    hiring_pdf3: null,
+    hiring_pdf4: null,
+    hiring_pdf5: null,
+    hiring_pdf6: null
   });
 
   const functionManagers = ['Richard', 'Small', 'Other'];
-  const salesAssociates = ['Nadia', 'Greg', 'Collette', 'Thuli', 'Joey'];
+  const salesAssociates = ['Adele','Collette','Greg','Joey','Nadia', 'Thuli'];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -168,20 +176,56 @@ export default function FunctionPack() {
         );
       }
       
-      if (pdfFiles.fancy_pdf) {
+      if (pdfFiles.hiring_pdf1) {
         uploadTasks.push(
-          uploadPdfToFirebase(pdfFiles.fancy_pdf, 'fancy_pdfs').then(url => {
-            fileUrls.fancy_pdf = url;
-            console.log('Fancy PDF uploaded:', url);
+          uploadPdfToFirebase(pdfFiles.hiring_pdf1, 'hiring_pdfs').then(url => {
+            fileUrls.hiring_pdf1 = url;
+            console.log('Hiring PDF 1 uploaded:', url);
           })
         );
       }
       
-      if (pdfFiles.norman_pdf) {
+      if (pdfFiles.hiring_pdf2) {
         uploadTasks.push(
-          uploadPdfToFirebase(pdfFiles.norman_pdf, 'norman_pdfs').then(url => {
-            fileUrls.norman_pdf = url;
-            console.log('Norman PDF uploaded:', url);
+          uploadPdfToFirebase(pdfFiles.hiring_pdf2, 'hiring_pdfs').then(url => {
+            fileUrls.hiring_pdf2 = url;
+            console.log('Hiring PDF 2 uploaded:', url);
+          })
+        );
+      }
+
+      if (pdfFiles.hiring_pdf3) {
+        uploadTasks.push(
+          uploadPdfToFirebase(pdfFiles.hiring_pdf3, 'hiring_pdfs').then(url => {
+            fileUrls.hiring_pdf3 = url;
+            console.log('Hiring PDF 3 uploaded:', url);
+          })
+        );
+      }
+
+      if (pdfFiles.hiring_pdf4) {
+        uploadTasks.push(
+          uploadPdfToFirebase(pdfFiles.hiring_pdf4, 'hiring_pdfs').then(url => {
+            fileUrls.hiring_pdf4 = url;
+            console.log('Hiring PDF 4 uploaded:', url);
+          })
+        );
+      }
+
+      if (pdfFiles.hiring_pdf5) {
+        uploadTasks.push(
+          uploadPdfToFirebase(pdfFiles.hiring_pdf5, 'hiring_pdfs').then(url => {
+            fileUrls.hiring_pdf5 = url;
+            console.log('Hiring PDF 5 uploaded:', url);
+          })
+        );
+      }
+
+      if (pdfFiles.hiring_pdf6) {
+        uploadTasks.push(
+          uploadPdfToFirebase(pdfFiles.hiring_pdf6, 'hiring_pdfs').then(url => {
+            fileUrls.hiring_pdf6 = url;
+            console.log('Hiring PDF 6 uploaded:', url);
           })
         );
       }
@@ -198,8 +242,12 @@ export default function FunctionPack() {
         date: formattedDate,
         timestamp: new Date().toISOString(),
         menu_pdf: fileUrls.menu_pdf || formData.menu_pdf,
-        fancy_pdf: fileUrls.fancy_pdf || formData.fancy_pdf,
-        norman_pdf: fileUrls.norman_pdf || formData.norman_pdf
+        hiring_pdf1: fileUrls.hiring_pdf1 || formData.hiring_pdf1,
+        hiring_pdf2: fileUrls.hiring_pdf2 || formData.hiring_pdf2,
+        hiring_pdf3: fileUrls.hiring_pdf3 || formData.hiring_pdf3,
+        hiring_pdf4: fileUrls.hiring_pdf4 || formData.hiring_pdf4,
+        hiring_pdf5: fileUrls.hiring_pdf5 || formData.hiring_pdf5,
+        hiring_pdf6: fileUrls.hiring_pdf6 || formData.hiring_pdf6
       };
       
       console.log('Submitting to Firestore:', submissionData);
@@ -224,14 +272,22 @@ export default function FunctionPack() {
         sales_associate: '',
         date: new Date(),
         menu_pdf: '',
-        fancy_pdf: '',
-        norman_pdf: ''
+        hiring_pdf1: '',
+        hiring_pdf2: '',
+        hiring_pdf3: '',
+        hiring_pdf4: '',
+        hiring_pdf5: '',
+        hiring_pdf6: ''
       });
       
       setPdfFiles({
         menu_pdf: null,
-        fancy_pdf: null,
-        norman_pdf: null
+        hiring_pdf1: null,
+        hiring_pdf2: null,
+        hiring_pdf3: null,
+        hiring_pdf4: null,
+        hiring_pdf5: null,
+        hiring_pdf6: null
       });
       
     } catch (error) {
@@ -246,8 +302,8 @@ export default function FunctionPack() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-4 py-5 bg-gradient-to-r from-[#ea176b] to-[#0cbb9b] sm:px-6">
-            <h1 className="text-2xl font-bold text-white">Event Information Pack</h1>
-            <p className="mt-1 text-sm text-white">Create a new event function pack</p>
+            <h1 className="text-2xl font-bold text-white">Function Pack Envelope</h1>
+            <p className="mt-1 text-sm text-white">Create a new event function pack </p>
           </div>
           
           {loading ? (
@@ -500,13 +556,13 @@ export default function FunctionPack() {
                 </div>
                 
                 <div>
-                  <label htmlFor="fancy_pdf" className="block text-medium font-medium text-[#ea176b] ">
-                    Fancy Affairs PDF
+                  <label htmlFor="hiring_pdf1" className="block text-medium font-medium text-[#ea176b] ">
+                    Hiring PDF 1
                   </label>
                   <input
                     type="file"
-                    name="fancy_pdf"
-                    id="fancy_pdf"
+                    name="hiring_pdf1"
+                    id="hiring_pdf1"
                     accept=".pdf"
                     onChange={handlePdfChange}
                     className="mt-1 block w-full text-sm text-gray-500
@@ -516,33 +572,129 @@ export default function FunctionPack() {
                       file:bg-[#0cbb9b] file:text-white
                       hover:file:bg-teal-700"
                   />
-                  {pdfFiles.fancy_pdf && (
+                  {pdfFiles.hiring_pdf1 && (
                     <p className="mt-1 text-xs text-gray-500">
-                      Selected: {pdfFiles.fancy_pdf.name}
+                      Selected: {pdfFiles.hiring_pdf1.name}
                     </p>
                   )}
                 </div>
                 
                 <div>
-                  <label htmlFor="norman_pdf" className="block text-medium font-medium text-[#ea176b] ">
-                    Norman PDF
+                  <label htmlFor="hiring_pdf2" className="block text-medium font-medium text-[#ea176b] ">
+                    Hiring PDF 2
                   </label>
                   <input
                     type="file"
-                    name="norman_pdf"
-                    id="norman_pdf"
+                    name="hiring_pdf2"
+                    id="hiring_pdf2"
                     accept=".pdf"
                     onChange={handlePdfChange}
                     className="mt-1 block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
                       file:rounded-md file:border-0
                       file:text-sm file:font-semibold
-                      file:bg-[#e3ed18] file:text-black
-                      hover:file:bg-yellow-400"
+                      file:bg-[#0cbb9b] file:text-white
+                      hover:file:bg-teal-700"
                   />
-                  {pdfFiles.norman_pdf && (
+                  {pdfFiles.hiring_pdf2 && (
                     <p className="mt-1 text-xs text-gray-500">
-                      Selected: {pdfFiles.norman_pdf.name}
+                      Selected: {pdfFiles.hiring_pdf2.name}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="hiring_pdf3" className="block text-medium font-medium text-[#ea176b] ">
+                    Hiring PDF 3
+                  </label>
+                  <input
+                    type="file"
+                    name="hiring_pdf3"
+                    id="hiring_pdf3"
+                    accept=".pdf"
+                    onChange={handlePdfChange}
+                    className="mt-1 block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-[#0cbb9b] file:text-white
+                      hover:file:bg-teal-700"
+                  />
+                  {pdfFiles.hiring_pdf3 && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Selected: {pdfFiles.hiring_pdf3.name}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="hiring_pdf4" className="block text-medium font-medium text-[#ea176b] ">
+                    Hiring PDF 4
+                  </label>
+                  <input
+                    type="file"
+                    name="hiring_pdf4"
+                    id="hiring_pdf4"
+                    accept=".pdf"
+                    onChange={handlePdfChange}
+                    className="mt-1 block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-[#0cbb9b] file:text-white
+                      hover:file:bg-teal-700"
+                  />
+                  {pdfFiles.hiring_pdf4 && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Selected: {pdfFiles.hiring_pdf4.name}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="hiring_pdf5" className="block text-medium font-medium text-[#ea176b] ">
+                    Hiring PDF 5
+                  </label>
+                  <input
+                    type="file"
+                    name="hiring_pdf5"
+                    id="hiring_pdf5"
+                    accept=".pdf"
+                    onChange={handlePdfChange}
+                    className="mt-1 block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-[#0cbb9b] file:text-white
+                      hover:file:bg-teal-700"
+                  />
+                  {pdfFiles.hiring_pdf5 && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Selected: {pdfFiles.hiring_pdf5.name}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="hiring_pdf6" className="block text-medium font-medium text-[#ea176b] ">
+                    Hiring PDF 6
+                  </label>
+                  <input
+                    type="file"
+                    name="hiring_pdf6"
+                    id="hiring_pdf6"
+                    accept=".pdf"
+                    onChange={handlePdfChange}
+                    className="mt-1 block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-[#0cbb9b] file:text-white
+                      hover:file:bg-teal-700"
+                  />
+                  {pdfFiles.hiring_pdf6 && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Selected: {pdfFiles.hiring_pdf6.name}
                     </p>
                   )}
                 </div>
