@@ -1,541 +1,201 @@
-"use client";
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { doc, updateDoc } from 'firebase/firestore';
+import { useState, useRef } from 'react';
 import { db, storage } from '../config/firebase';
+import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { doc, updateDoc } from 'firebase/firestore';
 
-// Define DetailRow component
-const DetailRow = ({ label, value, children }) => {
-  return (
-    <div className="flex flex-row items-center">
-      <span className="text-[#ea176b] text-lg font-medium">{label}: </span>
-      {children ? (
-        <div className="ml-2 text-gray-700 text-sm font-medium">{children}</div>
-      ) : (
-        <span className="ml-2 text-[#0cbb9b] text-base font-medium">{value}</span>
+const EventCard = ({ event }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditingPdfs, setIsEditingPdfs] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState(null);
+  const [pdfUrls, setPdfUrls] = useState({
+    menu_pdf: '',
+    hiring_pdf1: '',
+    hiring_pdf2: '',
+    hiring_pdf3: '',
+    hiring_pdf4: '',
+    hiring_pdf5: '',
+    hiring_pdf6: '',
+  });
+  const fileInputRefs = {
+    menu_pdf: useRef(null),
+    hiring_pdf1: useRef(null),
+    hiring_pdf2: useRef(null),
+    hiring_pdf3: useRef(null),
+    hiring_pdf4: useRef(null),
+    hiring_pdf5: useRef(null),
+    hiring_pdf6: useRef(null),
+  };
+
+  const toggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  const toggleEditPdfs = () => {
+    setIsEditingPdfs(!isEditingPdfs);
+    setError(null);
+    setPdfUrls({
+      menu_pdf: '',
+      hiring_pdf1: '',
+      hiring_pdf2: '',
+      hiring_pdf3: '',
+      hiring_pdf4: '',
+      hiring_pdf5: '',
+      hiring_pdf6: '',
+    });
+  };
+
+  const handleUrlChange = (field) => (e) => {
+    setPdfUrls((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleFileChange = (field) => async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      const storageRef = ref(storage, `event_pdfs/${event.id}/${field}-${Date.now()}`);
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+
+      const eventRef = doc(db, 'function_pack', event.id);
+      await updateDoc(eventRef, { [field]: downloadURL });
+
+      event[field] = downloadURL;
+    } catch (err) {
+      console.error(`Error uploading ${field}:`, err);
+      setError(`Failed to upload ${field}. Please try again.`);
+    } finally {
+      setUploading(false);
+      fileInputRefs[field].current.value = ''; // Reset file input
+    }
+  };
+
+  const handleSaveUrl = (field) => async () => {
+    const url = pdfUrls[field];
+    if (!url) return;
+
+    try {
+      const eventRef = doc(db, 'function_pack', event.id);
+      await updateDoc(eventRef, { [field]: url });
+
+      event[field] = url;
+      setPdfUrls((prev) => ({ ...prev, [field]: '' }));
+    } catch (err) {
+      console.error(`Error saving URL for ${field}:`, err);
+      setError(`Failed to save URL for ${field}. Please try again.`);
+    }
+  };
+
+  const renderPdfField = (field, label) => (
+    <div className="mt-2 flex items-center space-x-2">
+      <p className="text-sm font-medium text-gray-700">
+        {label}:{" "}
+        <span className={event[field] ? "text-green-600" : "text-red-600"}>
+          {event[field] ? "View PDF" : "No Pdf"}
+        </span>
+      </p>
+      {event[field] && (
+        <a
+          href={event[field]}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-500 underline text-sm"
+        >
+          🔗
+        </a>
       )}
+    </div>
+  );
+
+  const renderEditPdfField = (field, label) => (
+    <div className="mt-2">
+      <p className="text-sm font-semibold text-[#ea176b]">{label}:</p>
+     
+      <div className="mt-1 flex items-center space-x-2">
+        <p className="text-sm text-black">Upload PDF:</p>
+        <input
+          type="file"
+          accept="application/pdf"
+          ref={fileInputRefs[field]}
+          onChange={handleFileChange(field)}
+          className="text-sm"
+          disabled={uploading}
+        />
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="bg-white rounded-lg shadow p-4">
+      <div className="flex justify-between items-center bg-gradient-to-r from-[#ea176b] to-[#0cbb9b] p-3 rounded-t-lg">
+        <div>
+          <h3 className="text-lg font-semibold text-white">{event.compName}</h3>
+          <p className="text-sm font-semibold text-gray-200">Client: {event.client}</p>
+          <p className="text-sm font-semibold text-gray-200">Date: {event.date}</p>
+          <p className="text-sm font-semibold text-gray-200">Location: {event.location}</p>
+        </div>
+        <button
+          onClick={toggleExpand}
+          className="text-white hover:text-gray-200 focus:outline-none"
+        >
+          {isExpanded ? "Collapse" : "Expand"}
+        </button>
+      </div>
+
+      {isExpanded && (
+        <div className="mt-4">
+          <p className="text-sm text-[#ea176b] mt-2">Guest Arrival: {event.guest_arrival}</p>
+          <p className="text-sm text-[#ea176b] mt-2">Setup Time: {event.set_up}</p>
+          <p className="text-sm text-[#ea176b] mt-2">
+            Staff: Waiters: <span className='text-black font-bold text-[16px]'>{event.waiters_num}</span> Barmen: <span className='text-black font-bold text-[16px]'>{event.barmen_num}</span>
+          </p>
+          <p className="text-sm text-[#ea176b] mt-2">Chefs: {event.chefs}</p>
+          <p className="text-sm text-[#ea176b] mt-2">Function Manager: {event.function_mgr}</p>
+          <p className="text-sm text-[#ea176b] mt-2">Sales Associate: {event.sales_associate}</p>
+          <p className="text-sm text-[#ea176b] mt-2">Notes: {event.notes}</p>
+          
+          <div className="mt-4">
+            <div className="flex justify-between items-center">
+              <h4 className="text-md font-semibold text-gray-800">PDF Documents:</h4>
+              <button
+                onClick={toggleEditPdfs}
+                className="text-blue-500 underline text-sm"
+              >
+                {isEditingPdfs ? "Done" : "Edit PDFs"}
+              </button>
+            </div>
+            {!isEditingPdfs ? (
+              <>
+                {renderPdfField("menu_pdf", "Menu PDF")}
+                {renderPdfField("hiring_pdf1", "Hiring PDF 1")}
+                {renderPdfField("hiring_pdf2", "Hiring PDF 2")}
+                {renderPdfField("hiring_pdf3", "Hiring PDF 3")}
+                {renderPdfField("hiring_pdf4", "Hiring PDF 4")}
+                {renderPdfField("hiring_pdf5", "Hiring PDF 5")}
+                {renderPdfField("hiring_pdf6", "Hiring PDF 6")}
+              </>
+            ) : (
+              <>
+                {renderEditPdfField("menu_pdf", "Menu PDF")}
+                {renderEditPdfField("hiring_pdf1", "Hiring PDF 1")}
+                {renderEditPdfField("hiring_pdf2", "Hiring PDF 2")}
+                {renderEditPdfField("hiring_pdf3", "Hiring PDF 3")}
+                {renderEditPdfField("hiring_pdf4", "Hiring PDF 4")}
+                {renderEditPdfField("hiring_pdf5", "Hiring PDF 5")}
+                {renderEditPdfField("hiring_pdf6", "Hiring PDF 6")}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
     </div>
   );
 };
 
-export default function EventCard({ event }) {
-  const [expanded, setExpanded] = useState(false);
-  const [pdfs, setPdfs] = useState({
-    menu_pdf: event?.menu_pdf || '',
-    hiring_pdf1: event?.hiring_pdf1 || '',
-    hiring_pdf2: event?.hiring_pdf2 || '',
-    hiring_pdf3: event?.hiring_pdf3 || '',
-    hiring_pdf4: event?.hiring_pdf4 || '',
-    hiring_pdf5: event?.hiring_pdf5 || '',
-    hiring_pdf6: event?.hiring_pdf6 || '',
-  });
-  const [newPdfUrl, setNewPdfUrl] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
-
-  if (!event) {
-    console.error("EventCard received an undefined event prop");
-    return null;
-  }
-
-  const toggleExpanded = () => setExpanded(!expanded);
-
-  const formatTime = (timeString) => {
-    if (!timeString) return 'N/A';
-    const [hours, minutes] = timeString.split(':').map(Number);
-    return new Intl.DateTimeFormat('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    }).format(new Date(0, 0, 0, hours, minutes));
-  };
-
-  const parseDate = (dateString) => {
-    let date;
-    if (dateString instanceof Date) {
-      const year = dateString.getFullYear();
-      const month = String(dateString.getMonth() + 1).padStart(2, '0');
-      const day = String(dateString.getDate()).padStart(2, '0');
-      return new Date(year, month - 1, day);
-    }
-    if (typeof dateString === "string") {
-      const parts = dateString.split('/');
-      if (parts.length === 3) {
-        const [year, month, day] = parts.map(Number);
-        date = new Date(year, month - 1, day);
-        if (!isNaN(date.getTime())) return date;
-      }
-      date = new Date(dateString);
-      if (!isNaN(date.getTime())) return date;
-    }
-    console.error("Invalid date input, received:", dateString);
-    return new Date();
-  };
-
-  const eventDate = parseDate(event.date);
-
-  const toggleEditMode = () => setIsEditing(!isEditing);
-
-  const removePdf = (pdfKey) => {
-    setPdfs((prev) => ({ ...prev, [pdfKey]: '' }));
-  };
-
-  const addNewPdf = (url) => {
-    if (!url) return;
-    if (!pdfs.menu_pdf) {
-      setPdfs((prev) => ({ ...prev, menu_pdf: url }));
-    } else if (!pdfs.hiring_pdf1) {
-      setPdfs((prev) => ({ ...prev, hiring_pdf1: url }));
-    } else if (!pdfs.hiring_pdf2) {
-      setPdfs((prev) => ({ ...prev, hiring_pdf2: url }));
-    } else if (!pdfs.hiring_pdf3) {
-      setPdfs((prev) => ({ ...prev, hiring_pdf3: url }));
-    } else if (!pdfs.hiring_pdf4) {
-      setPdfs((prev) => ({ ...prev, hiring_pdf4: url }));
-    } else if (!pdfs.hiring_pdf5) {
-      setPdfs((prev) => ({ ...prev, hiring_pdf5: url }));
-    } else if (!pdfs.hiring_pdf6) {
-      setPdfs((prev) => ({ ...prev, hiring_pdf6: url }));
-    } else {
-      console.warn("All PDF slots are filled!");
-    }
-  };
-
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      try {
-        const timestamp = Date.now();
-        const fileName = `${timestamp}_${file.name}`;
-        let storageFolder;
-        if (!pdfs.menu_pdf) storageFolder = 'menu_pdfs';
-        else storageFolder = 'hiring_pdfs'; // All hiring PDFs go to the same folder
-        const storageRef = ref(storage, `${storageFolder}/${fileName}`);
-        await uploadBytes(storageRef, file);
-        const downloadUrl = await getDownloadURL(storageRef);
-        addNewPdf(downloadUrl);
-        console.log(`Uploaded ${file.name} to ${storageFolder}: ${downloadUrl}`);
-      } catch (error) {
-        console.error("Error uploading PDF:", error);
-      }
-    } else {
-      console.error("Please select a PDF file");
-    }
-  };
-
-  const saveChanges = async () => {
-    try {
-      const eventRef = doc(db, "function_pack", event.id);
-      await updateDoc(eventRef, {
-        menu_pdf: pdfs.menu_pdf || null,
-        hiring_pdf1: pdfs.hiring_pdf1 || null,
-        hiring_pdf2: pdfs.hiring_pdf2 || null,
-        hiring_pdf3: pdfs.hiring_pdf3 || null,
-        hiring_pdf4: pdfs.hiring_pdf4 || null,
-        hiring_pdf5: pdfs.hiring_pdf5 || null,
-        hiring_pdf6: pdfs.hiring_pdf6 || null,
-      });
-      console.log("PDFs updated in Firestore for event:", event.id);
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error saving PDF changes to Firestore:", error);
-    }
-  };
-
-  console.log("Events data:", event);
-  console.log("Current PDFs:", pdfs);
-
-  return (
-    <motion.div
-      className="bg-rose-50 rounded-lg shadow-md overflow-hidden cursor-pointer"
-      onClick={toggleExpanded}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.2 }}
-    >
-      <div className="px-4 py-5 bg-gradient-to-r from-[#ea176b] to-[#0cbb9b]">
-        <h2 className="text-lg font-semibold text-white">{event.compName}</h2>
-        <p className="text-sm text-white">
-          {eventDate.toLocaleDateString('en-US', {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-          })}
-        </p>
-      </div>
-      <div className="px-4 py-3">
-        <div className="flex justify-between items-center">
-          <p className="text-base font-bold text-gray-700">Client: {event.client}</p>
-          <motion.div
-            animate={{ rotate: expanded ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <svg
-              className="w-5 h-5 text-gray-500"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d={expanded ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"}
-              />
-            </svg>
-          </motion.div>
-        </div>
-      </div>
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="border-t border-gray-200"
-          >
-            <div className="p-4 space-y-3">
-              <DetailRow label="Location" value={event.location} />
-              <DetailRow label="Guest Number" value={event.guestNum} />
-              <DetailRow label="Guest Arrival" value={formatTime(event.guest_arrival)} />
-              <DetailRow label="Setup Time" value={formatTime(event.set_up)} />
-              <DetailRow label="Staff">
-                <div className="grid grid-cols-2 gap-2 mt-1">
-                  <div className="text-sm">Waiters: {event.waiters_num}</div>
-                  <div className="text-sm">Barmen: {event.barmen_num}</div>
-                  <div className="text-sm">Chefs: {event.chefs}</div>
-                </div>
-              </DetailRow>
-              <DetailRow label="Function Manager" value={event.function_mgr} />
-              <DetailRow label="Sales Associate" value={event.sales_associate} />
-              {event.notes && (
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <h4 className="text-sm font-medium text-gray-700">Notes:</h4>
-                  <p className="mt-1 text-sm text-gray-600">{event.notes}</p>
-                </div>
-              )}
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-sm font-medium text-gray-700">PDF Documents:</h4>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      isEditing ? saveChanges() : toggleEditMode();
-                    }}
-                    className="text-xs text-blue-600 hover:underline"
-                  >
-                    {isEditing ? 'Save' : 'Edit PDFs'}
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {pdfs.menu_pdf && (
-                    <div className="flex items-center">
-                      <a
-                        href={pdfs.menu_pdf}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-2 text-xs bg-[#ea176b] text-white rounded-md inline-flex items-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Menu PDF
-                        <svg
-                          className="w-4 h-4 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </a>
-                      {isEditing && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removePdf('menu_pdf');
-                          }}
-                          className="ml-2 text-xs text-red-600 hover:text-red-800"
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  {pdfs.hiring_pdf1 && (
-                    <div className="flex items-center">
-                      <a
-                        href={pdfs.hiring_pdf1}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-2 text-xs bg-[#0cbb9b] text-white rounded-md inline-flex items-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Hiring PDF 1
-                        <svg
-                          className="w-4 h-4 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </a>
-                      {isEditing && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removePdf('hiring_pdf1');
-                          }}
-                          className="ml-2 text-xs text-red-600 hover:text-red-800"
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  {pdfs.hiring_pdf2 && (
-                    <div className="flex items-center">
-                      <a
-                        href={pdfs.hiring_pdf2}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-2 text-xs bg-[#0cbb9b] text-white rounded-md inline-flex items-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Hiring PDF 2
-                        <svg
-                          className="w-4 h-4 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </a>
-                      {isEditing && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removePdf('hiring_pdf2');
-                          }}
-                          className="ml-2 text-xs text-red-600 hover:text-red-800"
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  {pdfs.hiring_pdf3 && (
-                    <div className="flex items-center">
-                      <a
-                        href={pdfs.hiring_pdf3}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-2 text-xs bg-[#0cbb9b] text-white rounded-md inline-flex items-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Hiring PDF 3
-                        <svg
-                          className="w-4 h-4 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </a>
-                      {isEditing && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removePdf('hiring_pdf3');
-                          }}
-                          className="ml-2 text-xs text-red-600 hover:text-red-800"
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  {pdfs.hiring_pdf4 && (
-                    <div className="flex items-center">
-                      <a
-                        href={pdfs.hiring_pdf4}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-2 text-xs bg-[#0cbb9b] text-white rounded-md inline-flex items-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Hiring PDF 4
-                        <svg
-                          className="w-4 h-4 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </a>
-                      {isEditing && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removePdf('hiring_pdf4');
-                          }}
-                          className="ml-2 text-xs text-red-600 hover:text-red-800"
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  {pdfs.hiring_pdf5 && (
-                    <div className="flex items-center">
-                      <a
-                        href={pdfs.hiring_pdf5}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-2 text-xs bg-[#0cbb9b] text-white rounded-md inline-flex items-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Hiring PDF 5
-                        <svg
-                          className="w-4 h-4 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </a>
-                      {isEditing && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removePdf('hiring_pdf5');
-                          }}
-                          className="ml-2 text-xs text-red-600 hover:text-red-800"
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  )}
-                  {pdfs.hiring_pdf6 && (
-                    <div className="flex items-center">
-                      <a
-                        href={pdfs.hiring_pdf6}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-2 text-xs bg-[#0cbb9b] text-white rounded-md inline-flex items-center"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Hiring PDF 6
-                        <svg
-                          className="w-4 h-4 ml-1"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth="2"
-                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                          />
-                        </svg>
-                      </a>
-                      {isEditing && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removePdf('hiring_pdf6');
-                          }}
-                          className="ml-2 text-xs text-red-600 hover:text-red-800"
-                        >
-                          Remove
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-                {isEditing && (
-                  <div className="mt-4 space-y-2">
-                    <input
-                      type="text"
-                      value={newPdfUrl}
-                      onChange={(e) => setNewPdfUrl(e.target.value)}
-                      onClick={(e) => e.stopPropagation()}
-                      placeholder="Enter PDF URL (e.g., http://example.com/file.pdf)"
-                      className="w-full px-3 py-2 text-sm border rounded-md"
-                    />
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addNewPdf(newPdfUrl);
-                        setNewPdfUrl('');
-                      }}
-                      className="px-3 py-2 text-xs bg-blue-600 text-white rounded-md"
-                    >
-                      Add PDF URL
-                    </button>
-                    <div>
-                      <label className="text-xs text-gray-600">Or upload a PDF file:</label>
-                      <input
-                        type="file"
-                        accept="application/pdf"
-                        onChange={handleFileUpload}
-                        onClick={(e) => e.stopPropagation()}
-                        className="mt-1 text-sm"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
+export default EventCard;

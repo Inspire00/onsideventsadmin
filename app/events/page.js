@@ -22,7 +22,7 @@ export default function EventsPage() {
   useEffect(() => {
     if (selectedDate && events.length > 0) {
       const filtered = events.filter(event => {
-        const eventDate = new Date(event.date);
+        const eventDate = new Date(event.date); // Parse the string date for comparison
         return (
           eventDate.getDate() === selectedDate.getDate() &&
           eventDate.getMonth() === selectedDate.getMonth() &&
@@ -43,7 +43,7 @@ export default function EventsPage() {
       const eventsList = eventsSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        date: new Date(doc.data().date)
+        date: doc.data().date // Keep as string in "YYYY/MM/DD" format
       }));
       setEvents(eventsList);
       setLoading(false);

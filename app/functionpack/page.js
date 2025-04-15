@@ -256,6 +256,7 @@ export default function FunctionPack() {
       
       setLoading(false);
       alert('Event information pack created successfully!');
+      router.push('/events');
       
       setFormData({
         compName: '',
