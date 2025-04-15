@@ -52,28 +52,39 @@ const EventCard = ({ event }) => {
   const handleFileChange = (field) => async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
+  
+    // Validate field
+    if (!fileInputRefs[field]) {
+      console.error(`Invalid field: ${field}`);
+      setError(`Invalid field: ${field}`);
+      return;
+    }
+  
     setUploading(true);
     setError(null);
-
+  
     try {
       const storageRef = ref(storage, `event_pdfs/${event.id}/${field}-${Date.now()}`);
       await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(storageRef);
-
+  
       const eventRef = doc(db, 'function_pack', event.id);
       await updateDoc(eventRef, { [field]: downloadURL });
-
+  
       event[field] = downloadURL;
     } catch (err) {
       console.error(`Error uploading ${field}:`, err);
       setError(`Failed to upload ${field}. Please try again.`);
     } finally {
       setUploading(false);
-      fileInputRefs[field].current.value = ''; // Reset file input
+      // Safely reset file input only if ref exists
+      if (fileInputRefs[field]?.current) {
+        fileInputRefs[field].current.value = '';
+      } else {
+        console.warn(`File input ref for ${field} is null`);
+      }
     }
   };
-
   const handleSaveUrl = (field) => async () => {
     const url = pdfUrls[field];
     if (!url) return;
