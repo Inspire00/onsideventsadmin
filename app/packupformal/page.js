@@ -1,12 +1,15 @@
 // app/page.js
 "use client";
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { db } from '../config/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
+
 export default function PackUpFormal() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     client: '',
@@ -127,6 +130,7 @@ export default function PackUpFormal() {
       
       setLoading(false);
       alert('Packing list created successfully!');
+      router.push('/packupviews');
       
       setFormData({
         client: '',

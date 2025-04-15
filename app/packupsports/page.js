@@ -1,12 +1,14 @@
 // app/page.js
 "use client";
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { db } from '../config/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
 export default function PackUpSports() {
+   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     date: new Date(),
@@ -141,6 +143,7 @@ export default function PackUpSports() {
       
       setLoading(false);
       alert('Sports packing list created successfully!');
+      router.push('/sportpackupviews');
       
       setFormData({
         date: new Date(),
