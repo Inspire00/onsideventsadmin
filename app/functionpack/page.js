@@ -46,7 +46,7 @@ export default function FunctionPack() {
   });
 
   const functionManagers = ['Richard', 'Small', 'Other'];
-  const salesAssociates = ['Adele','Collette','Greg','Joey','Nadia', 'Thuli'];
+  const salesAssociates = ['Adele','Collette','Greg','Joey','Nadia','Nissa', 'Thuli'];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
