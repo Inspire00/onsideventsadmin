@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import EventCalendar from '../components/EventCalendar';
-import EventCard from '../components/EventCard';
+
 import Loader from '../components/Loader';
 import dynamic from 'next/dynamic';
 
