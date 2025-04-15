@@ -5,6 +5,12 @@ import { db } from '../config/firebase';
 import EventCalendar from '../components/EventCalendar';
 import EventCard from '../components/EventCard';
 import Loader from '../components/Loader';
+import dynamic from 'next/dynamic';
+
+
+const EventCard = dynamic(() => import('../components/EventCard'), {
+  ssr: false,
+});
 
 export default function EventsPage() {
   const [events, setEvents] = useState([]);
