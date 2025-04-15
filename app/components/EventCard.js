@@ -77,7 +77,7 @@ const EventCard = ({ event }) => {
       setError(`Failed to upload ${field}. Please try again.`);
     } finally {
       setUploading(false);
-      // Safely reset file input only if ref exists
+      // Safely reset file input
       if (fileInputRefs[field]?.current) {
         fileInputRefs[field].current.value = '';
       } else {
