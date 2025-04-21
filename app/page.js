@@ -62,7 +62,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#111]">
       <div className="w-full max-w-md p-8 rounded-xl shadow-lg bg-[#1a1a1a] border border-gray-800">
-        <h2 className="text-3xl font-bold text-center mb-8 text-[#ea176b]">Login</h2>
+        <h2 className="text-3xl font-bold text-center mb-8 text-[#ea176b]">Onside Admin Login</h2>
         
         <form onSubmit={handleLogin} className="space-y-6">
           {error && (

@@ -1,13 +1,12 @@
-// components/Navbar.jsx
 "use client";
 import { useRouter } from 'next/navigation';
-import { FaTachometerAlt, FaFolderPlus, FaBoxOpen, FaFutbol, FaCalendarAlt } from 'react-icons/fa'; // Added FaTachometerAlt for Dashboard
+import { FaTachometerAlt, FaFolderPlus, FaBoxOpen, FaFutbol, FaCalendarAlt } from 'react-icons/fa';
 
 const Navbar = () => {
   const router = useRouter();
 
   const navItems = [
-    { path: '/dashboard', name: 'Dashboard', icon: <FaTachometerAlt /> }, // Added Dashboard
+    { path: '/dashboard', name: 'Dashboard', icon: <FaTachometerAlt /> },
     { path: '/functionpack', name: 'Function Pack', icon: <FaFolderPlus /> },
     { path: '/packupformal', name: 'Corporate PackUp', icon: <FaBoxOpen /> },
     { path: '/packupsports', name: 'Sports PackUp', icon: <FaFutbol /> },
@@ -21,7 +20,7 @@ const Navbar = () => {
   return (
     <nav className="bg-gradient-to-r from-[#ea176b] to-[#0cbb9b] shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
+        <div className="flex justify-between items-center h-16">
           <div className="flex space-x-8">
             {navItems.map((item) => (
               <button
@@ -33,6 +32,13 @@ const Navbar = () => {
                 <span className="text-sm font-medium">{item.name}</span>
               </button>
             ))}
+          </div>
+          <div className="flex items-center">
+            <img
+              src="/Icon_GreenWeb.png" // Replace with your logo path
+              alt="Onside Catering in Johannesburg"
+              className="h-10 w-auto"
+            />
           </div>
         </div>
       </div>

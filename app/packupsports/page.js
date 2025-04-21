@@ -214,6 +214,14 @@ export default function PackUpSports() {
 
   return (
     <div className="min-h-screen bg-gray-500 py-8">
+       {/* Right Logo */}
+       <div className="absolute right-32 top-80 -translate-y-1.5">
+              <img
+                src="/Icon_GreenWeb.png" // Replace with your right logo path
+                alt="Right Logo"
+                className="h-20 w-auto" // Adjust size as needed
+              />
+            </div>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-4 py-5 bg-gradient-to-r from-[#ea176b] to-[#0cbb9b] sm:px-6">
@@ -420,6 +428,16 @@ export default function PackUpSports() {
           )}
         </div>
       </div>
+
+       {/* Left Logo */}
+       <div className="absolute left-32 top-80 -translate-y-1.5">
+              <img
+                src="/Icon_TealWeb.png" // Replace with your left logo path
+                alt="Left Logo"
+                className="h-20 w-auto" // Adjust size as needed
+              />
+            </div>
+
     </div>
   );
 }

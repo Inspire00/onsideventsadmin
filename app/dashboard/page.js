@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { auth } from '../config/firebase';// Adjust the path to your firebase config
 import { onAuthStateChanged } from 'firebase/auth';
 
+
 export default function Dashboard() {
   const router = useRouter();
   const [loading, setLoading] = useState(true); // Loading state while checking auth
@@ -45,12 +46,30 @@ export default function Dashboard() {
   // Render dashboard only if user is authenticated
   return (
     <div className="min-h-screen bg-gray-500 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      
+           
+
+            
+
+      <div className=" max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+         {/* Right Logo */}
+         <div className="absolute right-32 top-80 -translate-y-1.5">
+              <img
+                src="/Icon_GreenWeb.png" // Replace with your right logo path
+                alt="Right Logo"
+                className="h-20 w-auto" // Adjust size as needed
+              />
+            </div>
+
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-4 py-5 bg-gradient-to-r from-[#ea176b] to-[#0cbb9b] sm:px-6">
             <h1 className="text-2xl font-bold text-white">Dashboard</h1>
             <p className="mt-1 text-sm text-white">Welcome, {user?.email}! Choose an option below</p>
           </div>
+
+         
 
           <div className="px-4 py-5 sm:p-6 bg-rose-50">
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -122,7 +141,18 @@ export default function Dashboard() {
 
             </div>
           </div>
+
+           
         </div>
+        {/* Left Logo */}
+        <div className="absolute left-32 top-80 -translate-y-1.5">
+              <img
+                src="/Icon_TealWeb.png" // Replace with your left logo path
+                alt="Left Logo"
+                className="h-20 w-auto" // Adjust size as needed
+              />
+            </div>
+
       </div>
     </div>
   );

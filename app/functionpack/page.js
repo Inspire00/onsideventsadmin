@@ -1,4 +1,3 @@
-// app/page.js
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -13,14 +12,15 @@ export default function FunctionPack() {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     compName: '',
-    guestNum: '',
+    guestNum: '', // Allow empty string initially
     location: '',
-    waiters_num: '',
-    barmen_num: '',
+    waiters_num: '', // Allow empty string initially
+    barmen_num: '', // Allow empty string initially
+    hours_charged: '', // Allow empty string initially
     client: '',
     guest_arrival: '',
     set_up: '',
-    chefs: '',
+    chefs: '', // Allow empty string initially
     notes: '',
     function_mgr: '',
     sales_associate: '',
@@ -59,6 +59,19 @@ export default function FunctionPack() {
       setErrors({
         ...errors,
         [name]: ''
+      });
+    }
+  };
+
+  const handleNumberBlur = (e) => {
+    const { name, value } = e.target;
+    const numberFields = ['guestNum', 'waiters_num', 'barmen_num', 'hours_charged', 'chefs'];
+    
+    if (numberFields.includes(name)) {
+      const newValue = value === '' ? 0 : Math.max(0, Number(value));
+      setFormData({
+        ...formData,
+        [name]: newValue
       });
     }
   };
@@ -127,9 +140,10 @@ export default function FunctionPack() {
       }
     });
 
-    const numberFields = ['guestNum', 'waiters_num', 'barmen_num', 'chefs'];
+    const numberFields = ['guestNum', 'waiters_num', 'barmen_num', 'hours_charged', 'chefs'];
     numberFields.forEach(key => {
-      if (formData[key] && (isNaN(formData[key]) || Number(formData[key]) < 0)) {
+      const value = formData[key] === '' ? 0 : Number(formData[key]);
+      if (isNaN(value) || value < 0) {
         newErrors[key] = 'Must be a positive number';
       }
     });
@@ -150,6 +164,19 @@ export default function FunctionPack() {
     e.preventDefault();
     console.log('Form submission started');
     console.log('Current form data:', formData);
+    
+    // Convert empty number fields to 0 before validation
+    const numberFields = ['guestNum', 'waiters_num', 'barmen_num', 'hours_charged', 'chefs'];
+    const updatedFormData = { ...formData };
+    numberFields.forEach(field => {
+      if (updatedFormData[field] === '') {
+        updatedFormData[field] = 0;
+      } else {
+        updatedFormData[field] = Number(updatedFormData[field]);
+      }
+    });
+    
+    setFormData(updatedFormData);
     
     const isValid = validateForm();
     console.log('Form is valid:', isValid);
@@ -264,6 +291,7 @@ export default function FunctionPack() {
         location: '',
         waiters_num: '',
         barmen_num: '',
+        hours_charged: '',
         client: '',
         guest_arrival: '',
         set_up: '',
@@ -300,6 +328,16 @@ export default function FunctionPack() {
 
   return (
     <div className="min-h-screen bg-gray-500 py-8">
+
+       {/* Right Logo */}
+       <div className="absolute right-32 top-80 -translate-y-1.5">
+              <img
+                src="/Icon_GreenWeb.png" // Replace with your right logo path
+                alt="Right Logo"
+                className="h-20 w-auto" // Adjust size as needed
+              />
+            </div>
+
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-4 py-5 bg-gradient-to-r from-[#ea176b] to-[#0cbb9b] sm:px-6">
@@ -412,6 +450,8 @@ export default function FunctionPack() {
                     id="guestNum"
                     value={formData.guestNum}
                     onChange={handleInputChange}
+                    onBlur={handleNumberBlur}
+                    min="0"
                     className={`mt-1 block w-full border ${errors.guestNum ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b]`}
                   />
                   {errors.guestNum && <p className="mt-1 text-sm text-red-500">{errors.guestNum}</p>}
@@ -427,6 +467,8 @@ export default function FunctionPack() {
                     id="waiters_num"
                     value={formData.waiters_num}
                     onChange={handleInputChange}
+                    onBlur={handleNumberBlur}
+                    min="0"
                     className={`mt-1 block w-full border ${errors.waiters_num ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b]`}
                   />
                   {errors.waiters_num && <p className="mt-1 text-sm text-red-500">{errors.waiters_num}</p>}
@@ -442,11 +484,13 @@ export default function FunctionPack() {
                     id="barmen_num"
                     value={formData.barmen_num}
                     onChange={handleInputChange}
+                    onBlur={handleNumberBlur}
+                    min="0"
                     className={`mt-1 block w-full border ${errors.barmen_num ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b]`}
                   />
                   {errors.barmen_num && <p className="mt-1 text-sm text-red-500">{errors.barmen_num}</p>}
                 </div>
-                
+
                 <div>
                   <label htmlFor="chefs" className="block text-medium font-medium text-[#ea176b]">
                     Chefs Number
@@ -457,10 +501,31 @@ export default function FunctionPack() {
                     id="chefs"
                     value={formData.chefs}
                     onChange={handleInputChange}
+                    onBlur={handleNumberBlur}
+                    min="0"
                     className={`mt-1 block w-full border ${errors.chefs ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b]`}
                   />
                   {errors.chefs && <p className="mt-1 text-sm text-red-500">{errors.chefs}</p>}
                 </div>
+                
+                <div>
+                  <label htmlFor="hours_charged" className="block text-medium font-medium text-[#ea176b]">
+                    Hours Charged
+                  </label>
+                  <input
+                    type="number"
+                    name="hours_charged"
+                    id="hours_charged"
+                    value={formData.hours_charged}
+                    onChange={handleInputChange}
+                    onBlur={handleNumberBlur}
+                    min="0"
+                    className={`mt-1 block w-full border ${errors.hours_charged ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b]`}
+                  />
+                  {errors.hours_charged && <p className="mt-1 text-sm text-red-500">{errors.hours_charged}</p>}
+                </div>
+                
+               
               </div>
               
               <div className="mt-6">
@@ -558,7 +623,7 @@ export default function FunctionPack() {
                 
                 <div>
                   <label htmlFor="hiring_pdf1" className="block text-medium font-medium text-[#ea176b] ">
-                    Hiring PDF 1
+                    Attachment 1
                   </label>
                   <input
                     type="file"
@@ -582,7 +647,7 @@ export default function FunctionPack() {
                 
                 <div>
                   <label htmlFor="hiring_pdf2" className="block text-medium font-medium text-[#ea176b] ">
-                    Hiring PDF 2
+                    Attachment 2
                   </label>
                   <input
                     type="file"
@@ -606,7 +671,7 @@ export default function FunctionPack() {
 
                 <div>
                   <label htmlFor="hiring_pdf3" className="block text-medium font-medium text-[#ea176b] ">
-                    Hiring PDF 3
+                    Attachment 3
                   </label>
                   <input
                     type="file"
@@ -630,7 +695,7 @@ export default function FunctionPack() {
 
                 <div>
                   <label htmlFor="hiring_pdf4" className="block text-medium font-medium text-[#ea176b] ">
-                    Hiring PDF 4
+                    Attachment 4
                   </label>
                   <input
                     type="file"
@@ -654,7 +719,7 @@ export default function FunctionPack() {
 
                 <div>
                   <label htmlFor="hiring_pdf5" className="block text-medium font-medium text-[#ea176b] ">
-                    Hiring PDF 5
+                    Attachment 5
                   </label>
                   <input
                     type="file"
@@ -678,7 +743,7 @@ export default function FunctionPack() {
 
                 <div>
                   <label htmlFor="hiring_pdf6" className="block text-medium font-medium text-[#ea176b] ">
-                    Hiring PDF 6
+                    Attachment 6
                   </label>
                   <input
                     type="file"
@@ -716,6 +781,16 @@ export default function FunctionPack() {
           )}
         </div>
       </div>
+
+       {/* Left Logo */}
+       <div className="absolute left-32 top-80 -translate-y-1.5">
+              <img
+                src="/Icon_TealWeb.png" // Replace with your left logo path
+                alt="Left Logo"
+                className="h-20 w-auto" // Adjust size as needed
+              />
+            </div>
+
     </div>
   );
 }
