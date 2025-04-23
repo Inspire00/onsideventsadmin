@@ -1,4 +1,3 @@
-// pages/login.js
 "use client"
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,9 +7,19 @@ import { auth } from './config/firebase';
 
 import firebaseConfig from './config/firebase';
 
-// Initialize Firebase
-//const app = initializeApp(firebaseConfig);
-//export const auth = getAuth(app);
+// List of authorized email addresses
+const AUTHORIZED_EMAILS = [
+  'greg@onsideevents.co.za',
+  'collette@onsideevents.co.za',
+  'tyron@onsideevents.co.za',
+  'joey@onsideevents.co.za',
+  'thuli@onsideevents.co.za',
+  'nadia@onsideevents.co.za',
+  'adele@onsideevents.co.za',
+  'nissah@onsideevents.co.za',
+  'vinnyatsa2@gmail.com'
+
+  ];
 
 export default function Home() {
   const [email, setEmail] = useState('');
@@ -23,6 +32,13 @@ export default function Home() {
     e.preventDefault();
     setError('');
     setLoading(true);
+
+    // Check if email is in authorized list
+    if (!AUTHORIZED_EMAILS.includes(email.toLowerCase())) {
+      setError('Not Authorised User');
+      setLoading(false);
+      return;
+    }
 
     if (!email || !password) {
       setError('Please enter both email and password');
@@ -113,8 +129,6 @@ export default function Home() {
             </button>
           </div>
         </form>
-
-        
       </div>
     </div>
   );
