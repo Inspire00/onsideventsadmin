@@ -1,4 +1,3 @@
-// app/page.js
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,10 +7,11 @@ import { db } from '../config/firebase';
 import { collection, addDoc } from 'firebase/firestore';
 
 export default function PackUpSports() {
-   const router = useRouter();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     date: new Date(),
+    stadium: '',
     location: '',
     client: '',
     suiteNumber: '',
@@ -24,7 +24,7 @@ export default function PackUpSports() {
       silverHeights: '0'
     },
     arrivalSnacks: {
-      smallServingTongs: '0',
+      servingTongs: '0',
       woodenSpoons: '0',
       silverHeights: '0'
     },
@@ -35,8 +35,9 @@ export default function PackUpSports() {
       chafingFuel: '0',
       servingSpoons: '0',
       servingTongs: '0',
+      verySmallTongs: '0',
       champagneCoolerMedium: '0',
-      breadBasket: '0',
+      brownBags: '0',
       breadKnife: '0',
       butterBowl: '0'
     },
@@ -101,7 +102,7 @@ export default function PackUpSports() {
 
   const validateForm = () => {
     const newErrors = {};
-    const requiredFields = ['date', 'location', 'client', 'suiteNumber'];
+    const requiredFields = ['date', 'stadium', 'location', 'client', 'suiteNumber'];
     
     requiredFields.forEach(key => {
       if (!formData[key] || formData[key] === '') {
@@ -127,6 +128,7 @@ export default function PackUpSports() {
       
       const submissionData = {
         date: formattedDate,
+        stadium: formData.stadium,
         location: formData.location,
         client: formData.client,
         suiteNumber: formData.suiteNumber,
@@ -145,65 +147,7 @@ export default function PackUpSports() {
       alert('Sports packing list created successfully!');
       router.push('/sportpackupviews');
       
-      setFormData({
-        date: new Date(),
-        location: '',
-        client: '',
-        suiteNumber: '',
-        drySnacks: {
-          whiteDrySnackBowl: '0',
-          drySnacksTongs: '0',
-          scoopsSweeties: '0',
-          serviettes: '0',
-          bambooBoatsSmall: '0',
-          silverHeights: '0'
-        },
-        arrivalSnacks: {
-          smallServingTongs: '0',
-          woodenSpoons: '0',
-          silverHeights: '0'
-        },
-        mainCourse: {
-          rollerTops: '0',
-          whiteLegsChafingDish: '0',
-          silverLegsChafingDish: '0',
-          chafingFuel: '0',
-          servingSpoons: '0',
-          servingTongs: '0',
-          champagneCoolerMedium: '0',
-          breadBasket: '0',
-          breadKnife: '0',
-          butterBowl: '0'
-        },
-        cutlery: {
-          sidePlates: '0',
-          mainPlates: '0',
-          mainKnives: '0',
-          mainForks: '0',
-          spoons: '0',
-          cutleryHolder: '0'
-        },
-        extras: {
-          saltAndPepper: '0',
-          toothpicks: '0',
-          gloves: '0',
-          lappies: '0',
-          dishesSoap: '0',
-          binBags: '0'
-        },
-        teaAndCoffeeStation: {
-          milk: '0',
-          teaBox: '0',
-          coffeeStirrers: '0',
-          disposableCoffeeCups: '0',
-          coffeeCupLids: '0',
-          coffeeStirrerHolder: '0',
-          coffeeStationDirtiesBowl: '0',
-          bigCoffeeMachine: '0',
-          nespressoCoffeeMachine: '0',
-          podsBoxes: '0'
-        }
-      });
+      
       
     } catch (error) {
       console.error('Error in form submission:', error);
@@ -214,14 +158,13 @@ export default function PackUpSports() {
 
   return (
     <div className="min-h-screen bg-gray-500 py-8">
-       {/* Right Logo */}
-       <div className="absolute right-32 top-80 -translate-y-1.5">
-              <img
-                src="/Icon_GreenWeb.png" // Replace with your right logo path
-                alt="Right Logo"
-                className="h-20 w-auto" // Adjust size as needed
-              />
-            </div>
+      <div className="absolute right-32 top-80 -translate-y-1.5">
+        <img
+          src="/Icon_GreenWeb.png"
+          alt="Right Logo"
+          className="h-20 w-auto"
+        />
+      </div>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-4 py-5 bg-gradient-to-r from-[#ea176b] to-[#0cbb9b] sm:px-6">
@@ -231,7 +174,7 @@ export default function PackUpSports() {
           
           {loading ? (
             <div className="flex flex-col items-center justify-center p-12">
-              <div className="w-16 h-16 border-4 border-[#ea176b] border-t-[#e3ed18] rounded-full animate-spin"></div>
+              <div className="w-16 h-16 border-4 border-[#ea176b] border-t-[#e3ed18] Rounded-full animate-spin"></div>
               <p className="mt-4 text-lg text-[#ea176b]">Creating your packing list...</p>
             </div>
           ) : (
@@ -245,6 +188,23 @@ export default function PackUpSports() {
                     className={`mt-1 block w-full border ${errors.date ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b]`}
                   />
                   {errors.date && <p className="mt-1 text-sm text-red-500">{errors.date}</p>}
+                </div>
+
+                <div>
+                  <label htmlFor="stadium" className="block text-sm font-medium text-[#ea176b]">Stadium</label>
+                  <select
+                    name="stadium"
+                    id="stadium"
+                    value={formData.stadium}
+                    onChange={handleInputChange}
+                    className={`mt-1 block w-full border ${errors.stadium ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b]`}
+                  >
+                    <option value="">Select a stadium</option>
+                    <option value="SSP">SSP</option>
+                    <option value="LOFTUS">LOFTUS</option>
+                    <option value="EAP">EAP</option>
+                  </select>
+                  {errors.stadium && <p className="mt-1 text-sm text-red-500">{errors.stadium}</p>}
                 </div>
 
                 <div>
@@ -287,7 +247,6 @@ export default function PackUpSports() {
                 </div>
               </div>
 
-              {/* Dry Snacks */}
               <div className="mt-6">
                 <h2 className="text-lg font-semibold text-[#ea176b]">Dry Snacks</h2>
                 <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 mt-2">
@@ -308,7 +267,6 @@ export default function PackUpSports() {
                 </div>
               </div>
 
-              {/* Arrival Snacks */}
               <div className="mt-6">
                 <h2 className="text-lg font-semibold text-[#ea176b]">Arrival Snacks</h2>
                 <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 mt-2">
@@ -329,7 +287,6 @@ export default function PackUpSports() {
                 </div>
               </div>
 
-              {/* Main Course */}
               <div className="mt-6">
                 <h2 className="text-lg font-semibold text-[#ea176b]">Main Course</h2>
                 <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 mt-2">
@@ -350,7 +307,6 @@ export default function PackUpSports() {
                 </div>
               </div>
 
-              {/* Cutlery */}
               <div className="mt-6">
                 <h2 className="text-lg font-semibold text-[#ea176b]">Cutlery</h2>
                 <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 mt-2">
@@ -371,7 +327,6 @@ export default function PackUpSports() {
                 </div>
               </div>
 
-              {/* Extras */}
               <div className="mt-6">
                 <h2 className="text-lg font-semibold text-[#ea176b]">Extras</h2>
                 <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 mt-2">
@@ -392,7 +347,6 @@ export default function PackUpSports() {
                 </div>
               </div>
 
-              {/* Tea & Coffee Station */}
               <div className="mt-6">
                 <h2 className="text-lg font-semibold text-[#ea176b]">Tea & Coffee Station</h2>
                 <div className="grid grid-cols-1 gap-y-4 sm:grid-cols-2 mt-2">
@@ -429,15 +383,13 @@ export default function PackUpSports() {
         </div>
       </div>
 
-       {/* Left Logo */}
-       <div className="absolute left-32 top-80 -translate-y-1.5">
-              <img
-                src="/Icon_TealWeb.png" // Replace with your left logo path
-                alt="Left Logo"
-                className="h-20 w-auto" // Adjust size as needed
-              />
-            </div>
-
+      <div className="absolute left-32 top-80 -translate-y-1.5">
+        <img
+          src="/Icon_TealWeb.png"
+          alt="Left Logo"
+          className="h-20 w-auto"
+        />
+      </div>
     </div>
   );
 }

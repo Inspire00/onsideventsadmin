@@ -55,7 +55,7 @@ export default function Dashboard() {
       <div className=" max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
          {/* Right Logo */}
-         <div className="absolute right-32 top-80 -translate-y-1.5">
+         <div className="absolute right-32 top-80 -translate-y-1.5 md:hidden">
               <img
                 src="/Icon_GreenWeb.png" // Replace with your right logo path
                 alt="Right Logo"
@@ -145,7 +145,7 @@ export default function Dashboard() {
            
         </div>
         {/* Left Logo */}
-        <div className="absolute left-32 top-80 -translate-y-1.5">
+        <div className="absolute left-32 top-80 -translate-y-1.5 md:hidden">
               <img
                 src="/Icon_TealWeb.png" // Replace with your left logo path
                 alt="Left Logo"

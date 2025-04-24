@@ -159,6 +159,7 @@ function SportPackCard({ pack, formatDate }) {
           <p className="text-base font-bold text-gray-700">Location: {pack.location}</p>
           <div className="flex justify-between items-center">
             <p className="text-base font-bold text-gray-700">Suite: {pack.suiteNumber || 'N/A'}</p>
+            <p className="text-base font-bold text-gray-700">Stadium: {pack.stadium || 'N/A'}</p>
             <motion.div
               animate={{ rotate: expanded ? 180 : 0 }}
               transition={{ duration: 0.3 }}

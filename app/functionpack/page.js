@@ -116,7 +116,7 @@ export default function FunctionPack() {
     return downloadUrl;
   };
 
-  const validateForm = () => {
+  const validateForm = (data = formData) => {
     const newErrors = {};
     
     const requiredFields = [
@@ -135,21 +135,24 @@ export default function FunctionPack() {
     ];
 
     requiredFields.forEach(key => {
-      if (!formData[key] || formData[key] === '') {
+      // Allow 0 for number fields
+      if (data[key] === '' || data[key] === null || data[key] === undefined) {
         newErrors[key] = 'This field is required';
       }
     });
 
     const numberFields = ['guestNum', 'waiters_num', 'barmen_num', 'hours_charged', 'chefs'];
     numberFields.forEach(key => {
-      const value = formData[key] === '' ? 0 : Number(formData[key]);
-      if (isNaN(value) || value < 0) {
-        newErrors[key] = 'Must be a positive number';
+      const value = Number(data[key]);
+      if (isNaN(value)) {
+        newErrors[key] = 'Must be a valid number';
+      } else if (value < 0) {
+        newErrors[key] = 'Must be a non-negative number';
       }
     });
 
-    if (formData.notes) {
-      const wordCount = formData.notes.trim().split(/\s+/).filter(Boolean).length;
+    if (data.notes) {
+      const wordCount = data.notes.trim().split(/\s+/).filter(Boolean).length;
       if (wordCount > 200) {
         newErrors.notes = 'Notes cannot exceed 200 words';
       }
@@ -170,15 +173,17 @@ export default function FunctionPack() {
     const updatedFormData = { ...formData };
     numberFields.forEach(field => {
       if (updatedFormData[field] === '') {
-        updatedFormData[field] = 0;
+        updatedFormData[field] = 0; // Set empty fields to 0
       } else {
-        updatedFormData[field] = Number(updatedFormData[field]);
+        updatedFormData[field] = Number(updatedFormData[field]); // Convert to number
       }
     });
     
+    // Update formData state with the converted values
     setFormData(updatedFormData);
     
-    const isValid = validateForm();
+    // Validate the updated form data
+    const isValid = validateForm(updatedFormData); // Pass updatedFormData to validateForm
     console.log('Form is valid:', isValid);
     
     if (!isValid) {
@@ -261,20 +266,20 @@ export default function FunctionPack() {
       console.log('All PDF uploads completed');
       
       // Format date as YYYY/MM/DD
-      const dateObj = formData.date;
+      const dateObj = updatedFormData.date;
       const formattedDate = `${dateObj.getFullYear()}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${String(dateObj.getDate()).padStart(2, '0')}`;
       
       const submissionData = {
-        ...formData,
+        ...updatedFormData,
         date: formattedDate,
         timestamp: new Date().toISOString(),
-        menu_pdf: fileUrls.menu_pdf || formData.menu_pdf,
-        hiring_pdf1: fileUrls.hiring_pdf1 || formData.hiring_pdf1,
-        hiring_pdf2: fileUrls.hiring_pdf2 || formData.hiring_pdf2,
-        hiring_pdf3: fileUrls.hiring_pdf3 || formData.hiring_pdf3,
-        hiring_pdf4: fileUrls.hiring_pdf4 || formData.hiring_pdf4,
-        hiring_pdf5: fileUrls.hiring_pdf5 || formData.hiring_pdf5,
-        hiring_pdf6: fileUrls.hiring_pdf6 || formData.hiring_pdf6
+        menu_pdf: fileUrls.menu_pdf || updatedFormData.menu_pdf,
+        hiring_pdf1: fileUrls.hiring_pdf1 || updatedFormData.hiring_pdf1,
+        hiring_pdf2: fileUrls.hiring_pdf2 || updatedFormData.hiring_pdf2,
+        hiring_pdf3: fileUrls.hiring_pdf3 || updatedFormData.hiring_pdf3,
+        hiring_pdf4: fileUrls.hiring_pdf4 || updatedFormData.hiring_pdf4,
+        hiring_pdf5: fileUrls.hiring_pdf5 || updatedFormData.hiring_pdf5,
+        hiring_pdf6: fileUrls.hiring_pdf6 || updatedFormData.hiring_pdf6
       };
       
       console.log('Submitting to Firestore:', submissionData);
@@ -285,39 +290,7 @@ export default function FunctionPack() {
       alert('Event information pack created successfully!');
       router.push('/events');
       
-      setFormData({
-        compName: '',
-        guestNum: '',
-        location: '',
-        waiters_num: '',
-        barmen_num: '',
-        hours_charged: '',
-        client: '',
-        guest_arrival: '',
-        set_up: '',
-        chefs: '',
-        notes: '',
-        function_mgr: '',
-        sales_associate: '',
-        date: new Date(),
-        menu_pdf: '',
-        hiring_pdf1: '',
-        hiring_pdf2: '',
-        hiring_pdf3: '',
-        hiring_pdf4: '',
-        hiring_pdf5: '',
-        hiring_pdf6: ''
-      });
       
-      setPdfFiles({
-        menu_pdf: null,
-        hiring_pdf1: null,
-        hiring_pdf2: null,
-        hiring_pdf3: null,
-        hiring_pdf4: null,
-        hiring_pdf5: null,
-        hiring_pdf6: null
-      });
       
     } catch (error) {
       console.error('Error in form submission:', error);
@@ -328,7 +301,6 @@ export default function FunctionPack() {
 
   return (
     <div className="min-h-screen bg-gray-500 py-8">
-
        {/* Right Logo */}
        <div className="absolute right-32 top-80 -translate-y-1.5">
               <img
