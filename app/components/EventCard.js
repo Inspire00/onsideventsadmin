@@ -585,7 +585,7 @@ const EventCard = ({ event }) => {
               </div>
             ) : (
               <div className="flex items-center space-x-1">
-                <span className="text-[16px] text-black font-bold">{event.notes || 'No notes'}</span>
+                <span className="text-sm text-[#ea176b]">{event.notes || 'No notes'}</span>
                 <button
                   onClick={toggleEditNotes}
                   className="text-blue-500 underline text-sm"
