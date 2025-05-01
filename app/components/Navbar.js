@@ -1,6 +1,8 @@
 "use client";
 import { useRouter } from 'next/navigation';
+import { signOut, getAuth } from 'firebase/auth';
 import { FaTachometerAlt, FaFolderPlus, FaBoxOpen, FaFutbol, FaCalendarAlt } from 'react-icons/fa';
+import { auth } from '../config/firebase'; // Adjust path to your Firebase config
 
 const Navbar = () => {
   const router = useRouter();
@@ -15,6 +17,15 @@ const Navbar = () => {
 
   const handleNavigation = (path) => {
     router.push(path);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error('Logout failed:', error.message);
+    }
   };
 
   return (
@@ -35,9 +46,10 @@ const Navbar = () => {
           </div>
           <div className="flex items-center">
             <img
-              src="/Icon_GreenWeb.png" // Replace with your logo path
+              src="/Icon_GreenWeb.png"
               alt="Onside Catering in Johannesburg"
-              className="h-10 w-auto"
+              className="h-10 w-auto cursor-pointer"
+              onClick={handleLogout}
             />
           </div>
         </div>

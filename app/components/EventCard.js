@@ -11,11 +11,13 @@ const EventCard = ({ event }) => {
   const [isEditingBarmenNum, setIsEditingBarmenNum] = useState(false);
   const [isEditingChefs, setIsEditingChefs] = useState(false);
   const [isEditingHoursCharged, setIsEditingHoursCharged] = useState(false);
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [guestNumInput, setGuestNumInput] = useState(event.guestNum);
   const [waitersNumInput, setWaitersNumInput] = useState(event.waiters_num);
   const [barmenNumInput, setBarmenNumInput] = useState(event.barmen_num);
   const [chefsInput, setChefsInput] = useState(event.chefs);
   const [hoursChargedInput, setHoursChargedInput] = useState(event.hours_charged);
+  const [notesInput, setNotesInput] = useState(event.notes || '');
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
   const [pdfUrls, setPdfUrls] = useState({
@@ -85,6 +87,12 @@ const EventCard = ({ event }) => {
     setError(null);
   };
 
+  const toggleEditNotes = () => {
+    setIsEditingNotes(!isEditingNotes);
+    setNotesInput(event.notes || '');
+    setError(null);
+  };
+
   const handleUrlChange = (field) => (e) => {
     setPdfUrls((prev) => ({ ...prev, [field]: e.target.value }));
   };
@@ -124,27 +132,31 @@ const EventCard = ({ event }) => {
     }
   };
 
+  const handleNotesChange = (e) => {
+    setNotesInput(e.target.value);
+  };
+
   const handleFileChange = (field) => async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-  
+
     if (!fileInputRefs[field]) {
       console.error(`Invalid field: ${field}`);
       setError(`Invalid field: ${field}`);
       return;
     }
-  
+
     setUploading(true);
     setError(null);
-  
+
     try {
       const storageRef = ref(storage, `event_pdfs/${event.id}/${field}-${Date.now()}`);
       await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(storageRef);
-  
+
       const eventRef = doc(db, 'function_pack', event.id);
       await updateDoc(eventRef, { [field]: downloadURL });
-  
+
       event[field] = downloadURL;
     } catch (err) {
       console.error(`Error uploading ${field}:`, err);
@@ -292,6 +304,19 @@ const EventCard = ({ event }) => {
     } catch (err) {
       console.error('Error saving hours charged:', err);
       setError('Failed to save hours charged. Please try again.');
+    }
+  };
+
+  const handleSaveNotes = async () => {
+    try {
+      const eventRef = doc(db, 'function_pack', event.id);
+      await updateDoc(eventRef, { notes: notesInput });
+      event.notes = notesInput;
+      setIsEditingNotes(false);
+      setError(null);
+    } catch (err) {
+      console.error('Error saving notes:', err);
+      setError('Failed to save notes. Please try again.');
     }
   };
 
@@ -535,14 +560,48 @@ const EventCard = ({ event }) => {
           </div>
           <p className="text-sm text-[#ea176b] mt-2">Function Manager: {event.function_mgr}</p>
           <p className="text-sm text-[#ea176b] mt-2">Sales Associate: {event.sales_associate}</p>
-          <p className="text-sm text-[#ea176b] mt-2">Notes: {event.notes}</p>
-          
+          <div className="flex items-center space-x-2 mt-2">
+            <p className="text-sm text-[#ea176b] min-w-[20px]">Notes:</p>
+            {isEditingNotes ? (
+              <div className="flex items-center space-x-2">
+                <textarea
+                  value={notesInput}
+                  onChange={handleNotesChange}
+                  className="w-64 border border-gray-300 rounded px-2 py-1 text-sm"
+                  rows="4"
+                />
+                <button
+                  onClick={handleSaveNotes}
+                  className="text-blue-500 underline text-sm"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={toggleEditNotes}
+                  className="text-red-500 underline text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-1">
+                <span className="text-[16px] text-black font-bold">{event.notes || 'No notes'}</span>
+                <button
+                  onClick={toggleEditNotes}
+                  className="text-blue-500 underline text-sm"
+                >
+                  Edit
+                </button>
+              </div>
+            )}
+          </div>
+
           <div className="mt-4">
             <div className="flex justify-between items-center">
               <h4 className="text-md font-semibold text-gray-800">PDF Documents:</h4>
               <button
-                onClick={toggleEditPdfs}
                 className="text-blue-500 underline text-sm"
+                onClick={toggleEditPdfs}
               >
                 {isEditingPdfs ? "Done" : "Edit PDFs"}
               </button>

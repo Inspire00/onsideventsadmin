@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../config/firebase'; // Adjust path based on your project structure
 import { motion, AnimatePresence } from 'framer-motion';
 import Loader from '../components/Loader'; // Adjust path if needed
@@ -17,18 +17,17 @@ export default function PackupViews() {
   const fetchPacks = async () => {
     try {
       setLoading(true);
-      const packsCollection = collection(db, "packuplist"); // Updated to correct collection name
+      const packsCollection = collection(db, "packuplist");
       const packsSnapshot = await getDocs(packsCollection);
       const packsList = packsSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        date: doc.data().date // Keep as string since it's stored as "YYYY/MM/DD"
+        date: doc.data().date
       }));
-      // Sort by date in descending order
       packsList.sort((a, b) => {
-        const dateA = new Date(a.date.split('/').join('-')); // Convert "YYYY/MM/DD" to "YYYY-MM-DD"
+        const dateA = new Date(a.date.split('/').join('-'));
         const dateB = new Date(b.date.split('/').join('-'));
-        return dateB - dateA; // Latest date first
+        return dateB - dateA;
       });
       setPacks(packsList);
       setLoading(false);
@@ -122,19 +121,20 @@ function PackCard({ pack, formatDate, refreshPacks }) {
   const [isEditing, setIsEditing] = useState(false);
   const [newItem, setNewItem] = useState('');
   const [newQuantity, setNewQuantity] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const toggleExpanded = () => setExpanded(!expanded);
   const toggleEdit = () => setIsEditing(!isEditing);
 
   const handleAddItem = async (e) => {
-    e.stopPropagation(); // Prevent card from expanding/collapsing
+    e.stopPropagation();
     if (!newItem || !newQuantity) {
       alert("Please enter both an item name and quantity.");
       return;
     }
 
     const newItemEntry = {
-      id: Date.now().toString(), // Unique ID based on timestamp
+      id: Date.now().toString(),
       item: newItem,
       quantity: newQuantity
     };
@@ -147,10 +147,23 @@ function PackCard({ pack, formatDate, refreshPacks }) {
       setNewItem('');
       setNewQuantity('');
       setIsEditing(false);
-      refreshPacks(); // Refresh the list after update
+      refreshPacks();
     } catch (error) {
       console.error("Error adding item:", error);
       alert("Failed to add item. Please try again.");
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      const packRef = doc(db, "packuplist", pack.id);
+      await deleteDoc(packRef);
+      console.log(`Deleted pack ${pack.id}`);
+      setShowDeleteConfirm(false);
+      refreshPacks();
+    } catch (error) {
+      console.error("Error deleting pack:", error);
+      alert("Failed to delete pack. Please try again.");
     }
   };
 
@@ -164,8 +177,31 @@ function PackCard({ pack, formatDate, refreshPacks }) {
       transition={{ duration: 0.2 }}
     >
       <div className="px-4 py-5 bg-gradient-to-r from-[#ea176b] to-[#0cbb9b]">
-        <h2 className="text-lg font-semibold text-white">{pack.compName}</h2>
-        <p className="text-sm text-white">{formatDate(pack.date)}</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-lg font-semibold text-white">{pack.compName}</h2>
+            <p className="text-sm text-white">{formatDate(pack.date)}</p>
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(true); }}
+            className="text-white hover:text-red-200"
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
       <div className="px-4 py-3">
         <div className="flex justify-between items-center">
@@ -220,7 +256,7 @@ function PackCard({ pack, formatDate, refreshPacks }) {
                   <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {pack.item.map((item) => (
                       <div key={item.id} className="flex items-center">
-                        <span className="text-sm  text-black">
+                        <span className="text-sm text-black">
                           {item.item}: {item.quantity}
                         </span>
                       </div>
@@ -257,6 +293,43 @@ function PackCard({ pack, formatDate, refreshPacks }) {
                 )}
               </div>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <motion.div
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              className="bg-white rounded-lg p-6 max-w-sm w-full"
+            >
+              <h3 className="text-lg font-semibold text-gray-900">Confirm Deletion</h3>
+              <p className="mt-2 text-sm text-gray-600">
+                Are you sure you want to delete this document? This action cannot be undone.
+              </p>
+              <div className="mt-4 flex justify-end space-x-2">
+                <button
+                  onClick={(e) => { e.stopPropagation(); setShowDeleteConfirm(false); }}
+                  className="px-4 py-2 text-sm text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDelete(); }}
+                  className="px-4 py-2 text-sm text-white bg-red-600 rounded-md hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
