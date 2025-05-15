@@ -2,6 +2,8 @@ import { useState, useRef } from 'react';
 import { db, storage } from '../config/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { doc, updateDoc } from 'firebase/firestore';
+import DatePicker from 'react-datepicker';
+import "react-datepicker/dist/react-datepicker.css";
 
 const EventCard = ({ event }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -12,12 +14,14 @@ const EventCard = ({ event }) => {
   const [isEditingChefs, setIsEditingChefs] = useState(false);
   const [isEditingHoursCharged, setIsEditingHoursCharged] = useState(false);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [isEditingDate, setIsEditingDate] = useState(false);
   const [guestNumInput, setGuestNumInput] = useState(event.guestNum);
   const [waitersNumInput, setWaitersNumInput] = useState(event.waiters_num);
   const [barmenNumInput, setBarmenNumInput] = useState(event.barmen_num);
   const [chefsInput, setChefsInput] = useState(event.chefs);
   const [hoursChargedInput, setHoursChargedInput] = useState(event.hours_charged);
   const [notesInput, setNotesInput] = useState(event.notes || '');
+  const [dateInput, setDateInput] = useState(new Date(event.date));
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
   const [pdfUrls, setPdfUrls] = useState({
@@ -35,6 +39,7 @@ const EventCard = ({ event }) => {
     hiring_pdf2: useRef(null),
     hiring_pdf3: useRef(null),
     hiring_pdf4: useRef(null),
+
     hiring_pdf5: useRef(null),
     hiring_pdf6: useRef(null),
   };
@@ -93,6 +98,12 @@ const EventCard = ({ event }) => {
     setError(null);
   };
 
+  const toggleEditDate = () => {
+    setIsEditingDate(!isEditingDate);
+    setDateInput(new Date(event.date));
+    setError(null);
+  };
+
   const handleUrlChange = (field) => (e) => {
     setPdfUrls((prev) => ({ ...prev, [field]: e.target.value }));
   };
@@ -134,6 +145,10 @@ const EventCard = ({ event }) => {
 
   const handleNotesChange = (e) => {
     setNotesInput(e.target.value);
+  };
+
+  const handleDateChange = (date) => {
+    setDateInput(date);
   };
 
   const handleFileChange = (field) => async (e) => {
@@ -229,7 +244,7 @@ const EventCard = ({ event }) => {
       event.waiters_num = newWaitersNum;
       setIsEditingWaitersNum(false);
       setError(null);
-    } catch (err) {
+   lot } catch (err) {
       console.error('Error saving waiters number:', err);
       setError('Failed to save waiters number. Please try again.');
     }
@@ -320,6 +335,25 @@ const EventCard = ({ event }) => {
     }
   };
 
+  const handleSaveDate = async () => {
+    if (!dateInput) {
+      setError('Date cannot be empty');
+      return;
+    }
+
+    try {
+      const formattedDate = `${dateInput.getFullYear()}/${String(dateInput.getMonth() + 1).padStart(2, '0')}/${String(dateInput.getDate()).padStart(2, '0')}`;
+      const eventRef = doc(db, 'function_pack', event.id);
+      await updateDoc(eventRef, { date: formattedDate });
+      event.date = formattedDate;
+      setIsEditingDate(false);
+      setError(null);
+    } catch (err) {
+      console.error('Error saving date:', err);
+      setError('Failed to save date. Please try again.');
+    }
+  };
+
   const renderPdfField = (field, label) => (
     <div className="mt-2 flex items-center space-x-2">
       <p className="text-sm font-medium text-gray-700">
@@ -364,7 +398,40 @@ const EventCard = ({ event }) => {
         <div>
           <h3 className="text-lg font-semibold text-white">{event.compName}</h3>
           <p className="text-sm font-semibold text-gray-200">Client: {event.client}</p>
-          <p className="text-sm font-semibold text-gray-200">Date: {event.date}</p>
+          <div className="flex items-center space-x-2">
+            <p className="text-sm font-semibold text-gray-200">Date:</p>
+            {isEditingDate ? (
+              <div className="flex items-center space-x-2">
+                <DatePicker
+                  selected={dateInput}
+                  onChange={handleDateChange}
+                  className="w-40 border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                />
+                <button
+                  onClick={handleSaveDate}
+                  className="text-blue-500 underline text-sm"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={toggleEditDate}
+                  className="text-red-500 underline text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-1">
+                <span className="text-sm font-semibold text-gray-200">{event.date}</span>
+                <button
+                  onClick={toggleEditDate}
+                  className="text-blue-500 underline text-sm"
+                >
+                  Edit
+                </button>
+              </div>
+            )}
+          </div>
           <p className="text-sm font-semibold text-gray-200">Location: {event.location}</p>
         </div>
         <button
