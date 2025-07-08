@@ -1,3 +1,4 @@
+"use client";
 import { useState, useRef } from 'react';
 import { db, storage } from '../config/firebase';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
@@ -15,6 +16,8 @@ const EventCard = ({ event }) => {
   const [isEditingHoursCharged, setIsEditingHoursCharged] = useState(false);
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [isEditingDate, setIsEditingDate] = useState(false);
+  const [isEditingGuestArrival, setIsEditingGuestArrival] = useState(false);
+  const [isEditingSetUp, setIsEditingSetUp] = useState(false);
   const [guestNumInput, setGuestNumInput] = useState(event.guestNum);
   const [waitersNumInput, setWaitersNumInput] = useState(event.waiters_num);
   const [barmenNumInput, setBarmenNumInput] = useState(event.barmen_num);
@@ -22,6 +25,8 @@ const EventCard = ({ event }) => {
   const [hoursChargedInput, setHoursChargedInput] = useState(event.hours_charged);
   const [notesInput, setNotesInput] = useState(event.notes || '');
   const [dateInput, setDateInput] = useState(new Date(event.date));
+  const [guestArrivalInput, setGuestArrivalInput] = useState(event.guest_arrival);
+  const [setUpInput, setSetUpInput] = useState(event.set_up);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
   const [pdfUrls, setPdfUrls] = useState({
@@ -39,7 +44,6 @@ const EventCard = ({ event }) => {
     hiring_pdf2: useRef(null),
     hiring_pdf3: useRef(null),
     hiring_pdf4: useRef(null),
-
     hiring_pdf5: useRef(null),
     hiring_pdf6: useRef(null),
   };
@@ -104,6 +108,18 @@ const EventCard = ({ event }) => {
     setError(null);
   };
 
+  const toggleEditGuestArrival = () => {
+    setIsEditingGuestArrival(!isEditingGuestArrival);
+    setGuestArrivalInput(event.guest_arrival);
+    setError(null);
+  };
+
+  const toggleEditSetUp = () => {
+    setIsEditingSetUp(!isEditingSetUp);
+    setSetUpInput(event.set_up);
+    setError(null);
+  };
+
   const handleUrlChange = (field) => (e) => {
     setPdfUrls((prev) => ({ ...prev, [field]: e.target.value }));
   };
@@ -149,6 +165,14 @@ const EventCard = ({ event }) => {
 
   const handleDateChange = (date) => {
     setDateInput(date);
+  };
+
+  const handleGuestArrivalChange = (e) => {
+    setGuestArrivalInput(e.target.value);
+  };
+
+  const handleSetUpChange = (e) => {
+    setSetUpInput(e.target.value);
   };
 
   const handleFileChange = (field) => async (e) => {
@@ -244,7 +268,7 @@ const EventCard = ({ event }) => {
       event.waiters_num = newWaitersNum;
       setIsEditingWaitersNum(false);
       setError(null);
-   lot } catch (err) {
+    } catch (err) {
       console.error('Error saving waiters number:', err);
       setError('Failed to save waiters number. Please try again.');
     }
@@ -351,6 +375,42 @@ const EventCard = ({ event }) => {
     } catch (err) {
       console.error('Error saving date:', err);
       setError('Failed to save date. Please try again.');
+    }
+  };
+
+  const handleSaveGuestArrival = async () => {
+    if (!guestArrivalInput) {
+      setError('Guest Arrival time cannot be empty');
+      return;
+    }
+
+    try {
+      const eventRef = doc(db, 'function_pack', event.id);
+      await updateDoc(eventRef, { guest_arrival: guestArrivalInput });
+      event.guest_arrival = guestArrivalInput;
+      setIsEditingGuestArrival(false);
+      setError(null);
+    } catch (err) {
+      console.error('Error saving guest arrival time:', err);
+      setError('Failed to save guest arrival time. Please try again.');
+    }
+  };
+
+  const handleSaveSetUp = async () => {
+    if (!setUpInput) {
+      setError('Set Up time cannot be empty');
+      return;
+    }
+
+    try {
+      const eventRef = doc(db, 'function_pack', event.id);
+      await updateDoc(eventRef, { set_up: setUpInput });
+      event.set_up = setUpInput;
+      setIsEditingSetUp(false);
+      setError(null);
+    } catch (err) {
+      console.error('Error saving set up time:', err);
+      setError('Failed to save set up time. Please try again.');
     }
   };
 
@@ -480,8 +540,76 @@ const EventCard = ({ event }) => {
               </div>
             )}
           </div>
-          <p className="text-sm text-[#ea176b] mt-2">Guest Arrival: {event.guest_arrival}</p>
-          <p className="text-sm text-[#ea176b] mt-2">Setup Time: {event.set_up}</p>
+          <div className="flex items-center space-x-2 mt-2">
+            <p className="text-sm text-[#ea176b] min-w-[20px]">Guest Arrival:</p>
+            {isEditingGuestArrival ? (
+              <div className="flex items-center space-x-2">
+                <input
+                  type="time"
+                  value={guestArrivalInput}
+                  onChange={handleGuestArrivalChange}
+                  className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
+                />
+                <button
+                  onClick={handleSaveGuestArrival}
+                  className="text-blue-500 underline text-sm"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={toggleEditGuestArrival}
+                  className="text-red-500 underline text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-1">
+                <span className="text-[16px] text-black font-bold">{event.guest_arrival}</span>
+                <button
+                  onClick={toggleEditGuestArrival}
+                  className="text-blue-500 underline text-sm"
+                >
+                  Edit
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center space-x-2 mt-2">
+            <p className="text-sm text-[#ea176b] min-w-[20px]">Setup Time:</p>
+            {isEditingSetUp ? (
+              <div className="flex items-center space-x-2">
+                <input
+                  type="time"
+                  value={setUpInput}
+                  onChange={handleSetUpChange}
+                  className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
+                />
+                <button
+                  onClick={handleSaveSetUp}
+                  className="text-blue-500 underline text-sm"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={toggleEditSetUp}
+                  className="text-red-500 underline text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-1">
+                <span className="text-[16px] text-black font-bold">{event.set_up}</span>
+                <button
+                  onClick={toggleEditSetUp}
+                  className="text-blue-500 underline text-sm"
+                >
+                  Edit
+                </button>
+              </div>
+            )}
+          </div>
           <div className="flex items-center space-x-2 mt-2">
             <p className="text-sm text-[#ea176b] min-w-[20px]">Staff:</p>
             <span className="text-sm text-[#ea176b]">Waiters:</span>
