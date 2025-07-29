@@ -34,6 +34,7 @@ export default function PackUpSports() {
       silverLegsChafingDish: '0',
       chafingFuel: '0',
       servingSpoons: '0',
+      NewSmallerServingSpoons: '0',
       servingTongs: '0',
       verySmallTongs: '0',
       champagneCoolerMedium: '0',
@@ -146,9 +147,6 @@ export default function PackUpSports() {
       setLoading(false);
       alert('Sports packing list created successfully!');
       router.push('/sportpackupviews');
-      
-      
-      
     } catch (error) {
       console.error('Error in form submission:', error);
       setLoading(false);
@@ -174,7 +172,7 @@ export default function PackUpSports() {
           
           {loading ? (
             <div className="flex flex-col items-center justify-center p-12">
-              <div className="w-16 h-16 border-4 border-[#ea176b] border-t-[#e3ed18] Rounded-full animate-spin"></div>
+              <div className="w-16 h-16 border-4 border-[#ea176b] border-t-[#e3ed18] rounded-full animate-spin"></div>
               <p className="mt-4 text-lg text-[#ea176b]">Creating your packing list...</p>
             </div>
           ) : (
@@ -280,7 +278,7 @@ export default function PackUpSports() {
                         id={key}
                         value={value}
                         onChange={(e) => handleNestedInputChange('arrivalSnacks', key, e.target.value)}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b]"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none fokus:ring-[#ea176b] focus:border-[#ea176b]"
                       />
                     </div>
                   ))}
@@ -300,7 +298,7 @@ export default function PackUpSports() {
                         id={key}
                         value={value}
                         onChange={(e) => handleNestedInputChange('mainCourse', key, e.target.value)}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b]"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176 Answer: b] focus:border-[#ea176b]"
                       />
                     </div>
                   ))}

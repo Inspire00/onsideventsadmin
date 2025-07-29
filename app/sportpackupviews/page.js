@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../config/firebase'; // Adjust path based on your project structure
+import { db } from '../config/firebase';
 import { motion, AnimatePresence } from 'framer-motion';
-import Loader from '../components/Loader'; // Adjust path if needed
+import Loader from '../components/Loader';
 
 export default function SportPackupViews() {
   const [packs, setPacks] = useState([]);
@@ -132,7 +132,7 @@ function SportPackCard({ pack, formatDate }) {
           {items.map(([key, value]) => (
             <div key={key} className="flex items-center">
               <span className="text-sm text-black">
-                {key}: {value}
+                {key.split(/(?=[A-Z])/).join(' ')}: {value}
               </span>
             </div>
           ))}
@@ -192,7 +192,6 @@ function SportPackCard({ pack, formatDate }) {
             className="border-t border-gray-200"
           >
             <div className="p-4 space-y-3">
-              
               {renderMapItems(pack.arrivalSnacks, "Arrival Snacks")}
               {renderMapItems(pack.cutlery, "Cutlery")}
               {renderMapItems(pack.drySnacks, "Dry Snacks")}
