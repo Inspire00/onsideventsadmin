@@ -18,7 +18,7 @@ const AUTHORIZED_EMAILS = [
   'adele@onsideevents.co.za',
   'nissah@onsideevents.co.za',
   'vinnyatsa2@gmail.com',
-  'support@onsideevents.co.za'
+  'support@onsideevents.co.za',
 
   ];
 
