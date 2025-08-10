@@ -1,9 +1,9 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../config/firebase'; // Adjust path based on your project structure
+import { db } from '../config/firebase';
 import { motion, AnimatePresence } from 'framer-motion';
-import Loader from '../components/Loader'; // Adjust path if needed
+import Loader from '../components/Loader';
 
 export default function PackupViews() {
   const [packs, setPacks] = useState([]);
@@ -122,6 +122,8 @@ function PackCard({ pack, formatDate, refreshPacks }) {
   const [newItem, setNewItem] = useState('');
   const [newQuantity, setNewQuantity] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
+  const [editedQuantity, setEditedQuantity] = useState('');
 
   const toggleExpanded = () => setExpanded(!expanded);
   const toggleEdit = () => setIsEditing(!isEditing);
@@ -164,6 +166,44 @@ function PackCard({ pack, formatDate, refreshPacks }) {
     } catch (error) {
       console.error("Error deleting pack:", error);
       alert("Failed to delete pack. Please try again.");
+    }
+  };
+
+  const handleEditQuantity = async (itemId) => {
+    if (!editedQuantity) {
+      alert("Please enter a new quantity.");
+      return;
+    }
+    
+    try {
+      const packRef = doc(db, "packuplist", pack.id);
+      const updatedItems = pack.item.map(item => 
+        item.id === itemId ? { ...item, quantity: editedQuantity } : item
+      );
+      await updateDoc(packRef, { item: updatedItems });
+      setEditingItem(null);
+      setEditedQuantity('');
+      refreshPacks();
+    } catch (error) {
+      console.error("Error editing item quantity:", error);
+      alert("Failed to edit item quantity. Please try again.");
+    }
+  };
+
+  const handleRemoveItem = async (e, itemId) => {
+    e.stopPropagation();
+    if (!window.confirm("Are you sure you want to remove this item?")) {
+      return;
+    }
+
+    try {
+      const packRef = doc(db, "packuplist", pack.id);
+      const updatedItems = pack.item.filter(item => item.id !== itemId);
+      await updateDoc(packRef, { item: updatedItems });
+      refreshPacks();
+    } catch (error) {
+      console.error("Error removing item:", error);
+      alert("Failed to remove item. Please try again.");
     }
   };
 
@@ -241,7 +281,7 @@ function PackCard({ pack, formatDate, refreshPacks }) {
               <DetailRow label="Company Name" value={pack.compName} />
               <DetailRow label="Date" value={formatDate(pack.date)} />
               <DetailRow label="Location" value={pack.location} />
-             
+              
               <div className="mt-4 pt-4 border-t border-gray-100">
                 <div className="flex justify-between items-center">
                   <h4 className="text-2xl font-bold text-red-700">Items:</h4>
@@ -255,10 +295,62 @@ function PackCard({ pack, formatDate, refreshPacks }) {
                 {pack.item && Array.isArray(pack.item) && pack.item.length > 0 ? (
                   <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {pack.item.map((item) => (
-                      <div key={item.id} className="flex items-center">
-                        <span className="text-sm text-black">
-                          {item.item}: {item.quantity}
-                        </span>
+                      <div key={item.id} className="flex items-center justify-between group">
+                        {editingItem?.id === item.id ? (
+                          <div className="flex items-center w-full" onClick={(e) => e.stopPropagation()}>
+                            <span className="text-sm text-black">{item.item}:</span>
+                            <input 
+                              type="number" 
+                              value={editedQuantity} 
+                              onChange={(e) => setEditedQuantity(e.target.value)} 
+                              className="ml-2 w-20 text-sm border rounded-md px-1 py-0.5"
+                            />
+                            <button 
+                              onClick={() => handleEditQuantity(item.id)}
+                              className="ml-2 text-green-600 hover:text-green-800"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                              </svg>
+                            </button>
+                            <button 
+                              onClick={() => setEditingItem(null)}
+                              className="ml-2 text-red-600 hover:text-red-800"
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                              </svg>
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-sm text-black flex items-center justify-between w-full">
+                            <span>
+                              {item.item}: {item.quantity}
+                            </span>
+                            <span className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingItem(item);
+                                  setEditedQuantity(item.quantity);
+                                }}
+                                className="text-blue-500 hover:text-blue-700"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                </svg>
+                              </button>
+                              <button
+                                onClick={(e) => handleRemoveItem(e, item.id)}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                                </svg>
+                              </button>
+                            </span>
+                          </span>
+                        )}
                       </div>
                     ))}
                   </div>
