@@ -32,6 +32,8 @@ export default function PackUpSports() {
       rollerTops: '0',
       whiteLegsChafingDish: '0',
       silverLegsChafingDish: '0',
+      ChafingDishRound: '0',
+      ChafingDishMetalSilver: '0',
       chafingFuel: '0',
       servingSpoons: '0',
       NewSmallerServingSpoons: '0',
@@ -39,6 +41,7 @@ export default function PackUpSports() {
       verySmallTongs: '0',
       champagneCoolerMedium: '0',
       brownBags: '0',
+      BreadBasket: '0',
       breadKnife: '0',
       butterBowl: '0'
     },
@@ -56,7 +59,13 @@ export default function PackUpSports() {
       gloves: '0',
       lappies: '0',
       dishesSoap: '0',
-      binBags: '0'
+      binBags: '0',
+      Tables: '0',
+      Chairs: '0',
+      Tablecloths: '0',
+      HeightsBlack: '0',
+      HeightsSilver: '0',
+      Flowers: '0'
     },
     teaAndCoffeeStation: {
       milk: '0',
@@ -68,7 +77,8 @@ export default function PackUpSports() {
       coffeeStationDirtiesBowl: '0',
       bigCoffeeMachine: '0',
       nespressoCoffeeMachine: '0',
-      podsBoxes: '0'
+      podsBoxes: '0',
+      Kettle: '0'
     }
   });
   const [errors, setErrors] = useState({});
@@ -278,7 +288,7 @@ export default function PackUpSports() {
                         id={key}
                         value={value}
                         onChange={(e) => handleNestedInputChange('arrivalSnacks', key, e.target.value)}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none fokus:ring-[#ea176b] focus:border-[#ea176b]"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b]"
                       />
                     </div>
                   ))}
@@ -298,7 +308,7 @@ export default function PackUpSports() {
                         id={key}
                         value={value}
                         onChange={(e) => handleNestedInputChange('mainCourse', key, e.target.value)}
-                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176 Answer: b] focus:border-[#ea176b]"
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#ea176b] focus:border-[#ea176b]"
                       />
                     </div>
                   ))}
