@@ -1,12 +1,12 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
+import { auth } from '../config/firebase'; // Import auth
 import { db } from '../config/firebase';
+import { onAuthStateChanged } from 'firebase/auth'; // Import onAuthStateChanged
 import EventCalendar from '../components/EventCalendar';
-
 import Loader from '../components/Loader';
 import dynamic from 'next/dynamic';
-
 
 const EventCard = dynamic(() => import('../components/EventCard'), {
   ssr: false,
@@ -20,6 +20,15 @@ export default function EventsPage() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [currentUser, setCurrentUser] = useState(null); // Add state for currentUser
+
+  // Listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+    });
+    return () => unsubscribe(); // Cleanup on unmount
+  }, []);
 
   useEffect(() => {
     fetchEvents();
@@ -28,7 +37,7 @@ export default function EventsPage() {
   useEffect(() => {
     if (selectedDate && events.length > 0) {
       const filtered = events.filter(event => {
-        const eventDate = new Date(event.date); // Parse the string date for comparison
+        const eventDate = new Date(event.date);
         return (
           eventDate.getDate() === selectedDate.getDate() &&
           eventDate.getMonth() === selectedDate.getMonth() &&
@@ -58,6 +67,19 @@ export default function EventsPage() {
       setError("Failed to load events. Please try again later.");
       setLoading(false);
     }
+  };
+
+  const updateEvent = (updatedEvent) => {
+    console.log('Updating event in EventsPage:', updatedEvent);
+    setEvents(events.map(e => (e.id === updatedEvent.id ? updatedEvent : e)));
+    if (selectedDate) {
+      setFilteredEvents(filteredEvents.map(e => (e.id === updatedEvent.id ? updatedEvent : e)));
+    }
+  };
+
+  const handleEventDelete = (eventId) => {
+    setEvents(events.filter(e => e.id !== eventId));
+    setFilteredEvents(filteredEvents.filter(e => e.id !== eventId));
   };
 
   const handleDateSelect = (date) => {
@@ -142,7 +164,13 @@ export default function EventsPage() {
                     {filteredEvents.length > 0 ? (
                       <div className="space-y-4">
                         {filteredEvents.map(event => (
-                          <EventCard key={event.id} event={event} />
+                          <EventCard 
+                            key={event.id} 
+                            event={event} 
+                            onEventUpdate={updateEvent}
+                            currentUser={currentUser} 
+                            onEventDelete={handleEventDelete} 
+                          />
                         ))}
                       </div>
                     ) : (

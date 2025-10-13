@@ -31,7 +31,11 @@ export default function FunctionPack() {
     hiring_pdf3: '',
     hiring_pdf4: '',
     hiring_pdf5: '',
-    hiring_pdf6: ''
+    hiring_pdf6: '',
+    hiring_pdf7: '',
+    hiring_pdf8: '',
+    hiring_pdf9: '',
+    event_report: [], // Initialize as empty array
   });
 
   const [errors, setErrors] = useState({});
@@ -42,11 +46,14 @@ export default function FunctionPack() {
     hiring_pdf3: null,
     hiring_pdf4: null,
     hiring_pdf5: null,
-    hiring_pdf6: null
+    hiring_pdf6: null,
+    hiring_pdf7: null,
+    hiring_pdf8: null,
+    hiring_pdf9: null
   });
 
-  const functionManagers = ['Richard', 'Small', 'Other'];
-  const salesAssociates = ['Adele','Collette','Greg','Joey','Nadia','Nissa', 'Thuli'];
+  const functionManagers = ['Richard', 'Lighton', 'Other'];
+  const salesAssociates = ['Adele','Collette','Greg','Joey','Nadia','Thuli'];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -261,14 +268,43 @@ export default function FunctionPack() {
           })
         );
       }
-      
+
+      if (pdfFiles.hiring_pdf7) {
+        uploadTasks.push(
+          uploadPdfToFirebase(pdfFiles.hiring_pdf7, 'hiring_pdfs').then(url => {
+            fileUrls.hiring_pdf7 = url;
+            console.log('Hiring PDF 7 uploaded:', url);
+          })
+        );
+      }
+
+      if (pdfFiles.hiring_pdf8) {
+        uploadTasks.push(
+          uploadPdfToFirebase(pdfFiles.hiring_pdf8, 'hiring_pdfs').then(url => {
+            fileUrls.hiring_pdf8 = url;
+            console.log('Hiring PDF 8 uploaded:', url);
+          })
+        );
+      }
+
+      if (pdfFiles.hiring_pdf9) {
+        uploadTasks.push(
+          uploadPdfToFirebase(pdfFiles.hiring_pdf9, 'hiring_pdfs').then(url => {
+            fileUrls.hiring_pdf9 = url;
+            console.log('Hiring PDF 9 uploaded:', url);
+          })
+        );
+      }
+
       await Promise.all(uploadTasks);
       console.log('All PDF uploads completed');
       
       // Format date as YYYY/MM/DD
       const dateObj = updatedFormData.date;
       const formattedDate = `${dateObj.getFullYear()}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${String(dateObj.getDate()).padStart(2, '0')}`;
-      
+      updatedFormData.event_report = formData.event_report || [];
+
+
       const submissionData = {
         ...updatedFormData,
         date: formattedDate,
@@ -279,7 +315,11 @@ export default function FunctionPack() {
         hiring_pdf3: fileUrls.hiring_pdf3 || updatedFormData.hiring_pdf3,
         hiring_pdf4: fileUrls.hiring_pdf4 || updatedFormData.hiring_pdf4,
         hiring_pdf5: fileUrls.hiring_pdf5 || updatedFormData.hiring_pdf5,
-        hiring_pdf6: fileUrls.hiring_pdf6 || updatedFormData.hiring_pdf6
+        hiring_pdf6: fileUrls.hiring_pdf6 || updatedFormData.hiring_pdf6,
+        hiring_pdf7: fileUrls.hiring_pdf7 || updatedFormData.hiring_pdf7,
+        hiring_pdf8: fileUrls.hiring_pdf8 || updatedFormData.hiring_pdf8,
+        hiring_pdf9: fileUrls.hiring_pdf9 || updatedFormData.hiring_pdf9,
+        event_report: updatedFormData.event_report,
       };
       
       console.log('Submitting to Firestore:', submissionData);
@@ -571,7 +611,7 @@ export default function FunctionPack() {
               <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-3">
                 <div>
                   <label htmlFor="menu_pdf" className="block text-medium font-medium text-[#ea176b]">
-                    Menu PDF
+                    Bar 1
                   </label>
                   <input
                     type="file"
@@ -595,7 +635,7 @@ export default function FunctionPack() {
                 
                 <div>
                   <label htmlFor="hiring_pdf1" className="block text-medium font-medium text-[#ea176b] ">
-                    Attachment 1
+                    Bar 2
                   </label>
                   <input
                     type="file"
@@ -619,7 +659,7 @@ export default function FunctionPack() {
                 
                 <div>
                   <label htmlFor="hiring_pdf2" className="block text-medium font-medium text-[#ea176b] ">
-                    Attachment 2
+                    Decor 1
                   </label>
                   <input
                     type="file"
@@ -643,7 +683,7 @@ export default function FunctionPack() {
 
                 <div>
                   <label htmlFor="hiring_pdf3" className="block text-medium font-medium text-[#ea176b] ">
-                    Attachment 3
+                    Decor 2
                   </label>
                   <input
                     type="file"
@@ -667,7 +707,7 @@ export default function FunctionPack() {
 
                 <div>
                   <label htmlFor="hiring_pdf4" className="block text-medium font-medium text-[#ea176b] ">
-                    Attachment 4
+                    Decor 3
                   </label>
                   <input
                     type="file"
@@ -691,7 +731,7 @@ export default function FunctionPack() {
 
                 <div>
                   <label htmlFor="hiring_pdf5" className="block text-medium font-medium text-[#ea176b] ">
-                    Attachment 5
+                    Pack-Up List
                   </label>
                   <input
                     type="file"
@@ -715,7 +755,7 @@ export default function FunctionPack() {
 
                 <div>
                   <label htmlFor="hiring_pdf6" className="block text-medium font-medium text-[#ea176b] ">
-                    Attachment 6
+                    Dietaries 1
                   </label>
                   <input
                     type="file"
@@ -736,6 +776,79 @@ export default function FunctionPack() {
                     </p>
                   )}
                 </div>
+
+                <div>
+                  <label htmlFor="hiring_pdf7" className="block text-medium font-medium text-[#ea176b] ">
+                    Dietaries 2
+                  </label>
+                  <input
+                    type="file"
+                    name="hiring_pdf7"
+                    id="hiring_pdf7"
+                    accept=".pdf"
+                    onChange={handlePdfChange}
+                    className="mt-1 block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-[#0cbb9b] file:text-white
+                      hover:file:bg-teal-700"
+                  />
+                  {pdfFiles.hiring_pdf7 && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Selected: {pdfFiles.hiring_pdf7.name}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="hiring_pdf8" className="block text-medium font-medium text-[#ea176b] ">
+                    Dietaries 3
+                  </label>
+                  <input
+                    type="file"
+                    name="hiring_pdf8 "
+                    id="hiring_pdf8"
+                    accept=".pdf"
+                    onChange={handlePdfChange}
+                    className="mt-1 block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-[#0cbb9b] file:text-white
+                      hover:file:bg-teal-700"
+                  />
+                  {pdfFiles.hiring_pdf8 && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Selected: {pdfFiles.hiring_pdf8.name}
+                    </p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="hiring_pdf9" className="block text-medium font-medium text-[#ea176b] ">
+                    Extra
+                  </label>
+                  <input
+                    type="file"
+                    name="hiring_pdf9"
+                    id="hiring_pdf9"
+                    accept=".pdf"
+                    onChange={handlePdfChange}
+                    className="mt-1 block w-full text-sm text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-sm file:font-semibold
+                      file:bg-[#0cbb9b] file:text-white
+                      hover:file:bg-teal-700"
+                  />
+                  {pdfFiles.hiring_pdf9 && (
+                    <p className="mt-1 text-xs text-gray-500">
+                      Selected: {pdfFiles.hiring_pdf9.name}
+                    </p>
+                  )}
+                </div>
+
               </div>
               
               <div className="mt-8">
