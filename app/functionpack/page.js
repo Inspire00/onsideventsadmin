@@ -52,7 +52,7 @@ export default function FunctionPack() {
     hiring_pdf9: null
   });
 
-  const functionManagers = ['Richard', 'Lighton', 'Other'];
+  const functionManagers = ['Richard', 'Lyton', 'Other'];
   const salesAssociates = ['Adele','Collette','Greg','Joey','Nadia','Thuli'];
 
   const handleInputChange = (e) => {

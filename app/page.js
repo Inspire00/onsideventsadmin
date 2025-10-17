@@ -16,11 +16,21 @@ const AUTHORIZED_EMAILS = [
   'thuli@onsideevents.co.za',
   'nadia@onsideevents.co.za',
   'adele@onsideevents.co.za',
-  'nissah@onsideevents.co.za',
+  'lyton@onsideevents.co.za',
   'vinnyatsa2@gmail.com',
   'support@onsideevents.co.za',
   'Tyrone@onsideevents.co.za',
   'richard@onsideevents.co.za',
+  'john@onsideevents.co.za',
+  'davi@onsideevents.co.za',
+  'brandon@onsideevents.co.za',
+  'celia@onsideevents.co.za',
+  'alice@onsideevents.co.za',
+  'nobantu@onsideevents.co.za',
+  'something@onsideevents.co.za',
+  'lebo@onsideevents.co.za',
+  'david@onsideevents.co.za',
+  'sean@onsideevents.co.za'
 
   ];
 
