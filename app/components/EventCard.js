@@ -893,77 +893,168 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
               </div>
             )}
           </div>
+          <div className="space-y-3">
+      {/* Desktop: Horizontal layout */}
+      <div className="hidden md:flex items-center space-x-3">
+        <p className="text-sm font-semibold text-[#ea176b] min-w-[80px]">Staff:</p>
+        <span className="text-sm font-semibold text-[#ea176b]">Waiters:</span>
+        {isEditingWaitersNum ? (
           <div className="flex items-center space-x-2">
-            <p className="text-sm font-semibold text-[#ea176b] min-w-[100px]">Staff:</p>
-            <span className="text-sm font-semibold text-[#ea176b]">Waiters:</span>
-            {isEditingWaitersNum ? (
-              <div className="flex items-center space-x-2">
-                <input
-                  type="number"
-                  value={waitersNumInput}
-                  onChange={handleWaitersNumChange}
-                  className="w-24 border border-gray-300 rounded px-2 py-1 text-sm"
-                  min="0"
-                />
+            <input
+              type="number"
+              value={waitersNumInput}
+              onChange={handleWaitersNumChange}
+              className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
+              min="0"
+            />
+            <button
+              onClick={handleSaveWaitersNum}
+              className="text-blue-500 underline text-sm hover:text-blue-700"
+            >
+              Save
+            </button>
+            <button
+              onClick={toggleEditWaitersNum}
+              className="text-red-500 underline text-sm hover:text-red-700"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-2">
+            <span className="text-base text-black font-semibold">{event.waiters_num}</span>
+            <button
+              onClick={toggleEditWaitersNum}
+              className="text-blue-500 underline text-sm hover:text-blue-700"
+            >
+              Edit
+            </button>
+          </div>
+        )}
+        <span className="text-sm font-semibold text-[#ea176b]">Barmen:</span>
+        {isEditingBarmenNum ? (
+          <div className="flex items-center space-x-2">
+            <input
+              type="number"
+              value={barmenNumInput}
+              onChange={handleBarmenNumChange}
+              className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
+              min="0"
+            />
+            <button
+              onClick={handleSaveBarmenNum}
+              className="text-blue-500 underline text-sm hover:text-blue-700"
+            >
+              Save
+            </button>
+            <button
+              onClick={toggleEditBarmenNum}
+              className="text-red-500 underline text-sm hover:text-red-700"
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-2">
+            <span className="text-base text-black font-semibold">{event.barmen_num}</span>
+            <button
+              onClick={toggleEditBarmenNum}
+              className="text-blue-500 underline text-sm hover:text-blue-700"
+            >
+              Edit
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Mobile: Vertical stacked layout */}
+      <div className="md:hidden space-y-2">
+        {/* Waiters Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-50 p-3 rounded-lg">
+          <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+            <span className="text-sm font-semibold text-[#ea176b]">👨‍🍳 Waiters:</span>
+            <span className={!isEditingWaitersNum ? "text-base text-black font-semibold" : "text-gray-400"}>{event.waiters_num}</span>
+          </div>
+          {isEditingWaitersNum ? (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+              <input
+                type="number"
+                value={waitersNumInput}
+                onChange={handleWaitersNumChange}
+                className="w-full sm:w-20 border border-gray-300 rounded px-2 py-2 text-sm"
+                min="0"
+                placeholder="Waiters"
+              />
+              <div className="flex space-x-2">
                 <button
                   onClick={handleSaveWaitersNum}
-                  className="text-blue-500 underline text-sm hover:text-blue-700"
+                  className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition duration-200"
                 >
                   Save
                 </button>
                 <button
                   onClick={toggleEditWaitersNum}
-                  className="text-red-500 underline text-sm hover:text-red-700"
+                  className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition duration-200"
                 >
                   Cancel
                 </button>
               </div>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <span className="text-base text-black font-semibold">{event.waiters_num}</span>
-                <button
-                  onClick={toggleEditWaitersNum}
-                  className="text-blue-500 underline text-sm hover:text-blue-700"
-                >
-                  Edit
-                </button>
-              </div>
-            )}
-            <span className="text-sm font-semibold text-[#ea176b] ml-4">Barmen:</span>
-            {isEditingBarmenNum ? (
-              <div className="flex items-center space-x-2">
-                <input
-                  type="number"
-                  value={barmenNumInput}
-                  onChange={handleBarmenNumChange}
-                  className="w-24 border border-gray-300 rounded px-2 py-1 text-sm"
-                  min="0"
-                />
+            </div>
+          ) : (
+            <button
+              onClick={toggleEditWaitersNum}
+              className="text-blue-500 underline text-sm hover:text-blue-700 sm:no-underline sm:bg-blue-100 sm:px-3 sm:py-1 sm:rounded"
+            >
+              Edit
+            </button>
+          )}
+        </div>
+
+        {/* Barmen Section */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-gray-50 p-3 rounded-lg">
+          <div className="flex items-center space-x-2 mb-2 sm:mb-0">
+            <span className="text-sm font-semibold text-[#ea176b]">🍸 Barmen:</span>
+            <span className={!isEditingBarmenNum ? "text-base text-black font-semibold" : "text-gray-400"}>{event.barmen_num}</span>
+          </div>
+          {isEditingBarmenNum ? (
+            <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2">
+              <input
+                type="number"
+                value={barmenNumInput}
+                onChange={handleBarmenNumChange}
+                className="w-full sm:w-20 border border-gray-300 rounded px-2 py-2 text-sm"
+                min="0"
+                placeholder="Barmen"
+              />
+              <div className="flex space-x-2">
                 <button
                   onClick={handleSaveBarmenNum}
-                  className="text-blue-500 underline text-sm hover:text-blue-700"
+                  className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition duration-200"
                 >
                   Save
                 </button>
                 <button
                   onClick={toggleEditBarmenNum}
-                  className="text-red-500 underline text-sm hover:text-red-700"
+                  className="px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600 transition duration-200"
                 >
                   Cancel
                 </button>
               </div>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <span className="text-base text-black font-semibold">{event.barmen_num}</span>
-                <button
-                  onClick={toggleEditBarmenNum}
-                  className="text-blue-500 underline text-sm hover:text-blue-700"
-                >
-                  Edit
-                </button>
-              </div>
-            )}
-          </div>
+            </div>
+          ) : (
+            <button
+              onClick={toggleEditBarmenNum}
+              className="text-blue-500 underline text-sm hover:text-blue-700 sm:no-underline sm:bg-blue-100 sm:px-3 sm:py-1 sm:rounded"
+            >
+              Edit
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+
+
+
           <div className="flex items-center space-x-3">
             <p className="text-sm font-semibold text-[#ea176b] min-w-[100px]">Chefs:</p>
             {isEditingChefs ? (
