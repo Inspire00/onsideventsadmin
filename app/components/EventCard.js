@@ -893,7 +893,7 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
               </div>
             )}
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <p className="text-sm font-semibold text-[#ea176b] min-w-[100px]">Staff:</p>
             <span className="text-sm font-semibold text-[#ea176b]">Waiters:</span>
             {isEditingWaitersNum ? (
@@ -1089,111 +1089,170 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
               {isViewingReport ? 'Hide Event Report' : 'View Event Report'}
             </button>
           </div>
-          {isEditingReport && (
-            <div className="mt-6 p-6 border border-gray-300 rounded-lg bg-gray-50">
-              <h4 className="text-lg font-bold text-[#ea176b] mb-4">Event Report</h4>
-              <div className="grid grid-cols-1 gap-y-6">
-                <div>
-                  <label className="text-sm font-semibold text-[#ea176b]">Hours Worked:</label>
-                  <input
-                    type="number"
-                    name="hours_worked"
-                    value={reportForm.hours_worked}
-                    onChange={handleReportChange}
-                    className="mt-1 w-32 border border-gray-300 rounded px-2 py-1 text-sm"
-                    min="0"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-[#ea176b]">Guests Attended:</label>
-                  <input
-                    type="number"
-                    name="guests_attended"
-                    value={reportForm.guests_attended}
-                    onChange={handleReportChange}
-                    className="mt-1 w-32 border border-gray-300 rounded px-2 py-1 text-sm"
-                    min="0"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-semibold text-[#ea176b]">Hiring Items:</label>
-                  {reportForm.hiring.map((entry, index) => (
-                    <div key={index} className="flex items-center space-x-3 mt-3">
-                      <input
-                        type="text"
-                        placeholder="Item name"
-                        value={entry.item}
-                        onChange={(e) => handleHiringChange(index, 'item', e.target.value)}
-                        className="w-48 border border-gray-300 rounded px-2 py-1 text-sm"
-                      />
+         {isEditingReport && (
+                <div className="mt-6 p-6 border border-gray-300 rounded-lg bg-gray-50">
+                  <h4 className="text-lg font-bold text-[#ea176b] mb-4">Event Report</h4>
+                  <div className="grid grid-cols-1 gap-y-6">
+                    <div>
+                      <label className="text-sm font-semibold text-[#ea176b]">Hours Worked:</label>
                       <input
                         type="number"
-                        placeholder="Issued"
-                        value={entry.qty_issued}
-                        onChange={(e) => handleHiringChange(index, 'qty_issued', e.target.value)}
-                        className="w-24 border border-gray-300 rounded px-2 py-1 text-sm"
+                        name="hours_worked"
+                        value={reportForm.hours_worked}
+                        onChange={handleReportChange}
+                        className="mt-1 w-32 border border-gray-300 rounded px-2 py-1 text-sm"
                         min="0"
                       />
-                      <input
-                        type="number"
-                        placeholder="Counted"
-                        value={entry.qty_counted}
-                        onChange={(e) => handleHiringChange(index, 'qty_counted', e.target.value)}
-                        className="w-24 border border-gray-300 rounded px-2 py-1 text-sm"
-                        min="0"
-                      />
-                      <span className="text-sm text-gray-600">
-                        Missing: <span className={Number(entry.qty_issued) - Number(entry.qty_counted) > 0 ? "text-red-600 font-semibold" : "text-gray-600"}>{Number(entry.qty_issued) - Number(entry.qty_counted) || 0}</span>
-                      </span>
-                      {reportForm.hiring.length > 1 && (
-                        <button
-                          onClick={() => removeHiringEntry(index)}
-                          className="text-red-500 text-sm hover:text-red-700"
-                        >
-                          Remove
-                        </button>
-                      )}
                     </div>
-                  ))}
-                  <button
-                    onClick={addHiringEntry}
-                    className="mt-3 text-blue-500 underline text-sm hover:text-blue-700"
-                  >
-                    Add Hiring Item
-                  </button>
+                    <div>
+                      <label className="text-sm font-semibold text-[#ea176b]">Guests Attended:</label>
+                      <input
+                        type="number"
+                        name="guests_attended"
+                        value={reportForm.guests_attended}
+                        onChange={handleReportChange}
+                        className="mt-1 w-32 border border-gray-300 rounded px-2 py-1 text-sm"
+                        min="0"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold text-[#ea176b]">Hiring Items:</label>
+                      <div className="space-y-4 mt-3">
+                        {reportForm.hiring.map((entry, index) => (
+                          <div key={index} className="bg-white p-4 rounded-lg border border-gray-200">
+                            {/* Desktop: Horizontal layout */}
+                            <div className="hidden md:flex items-center space-x-3">
+                              <input
+                                type="text"
+                                placeholder="Item name"
+                                value={entry.item}
+                                onChange={(e) => handleHiringChange(index, 'item', e.target.value)}
+                                className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Issued"
+                                value={entry.qty_issued}
+                                onChange={(e) => handleHiringChange(index, 'qty_issued', e.target.value)}
+                                className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
+                                min="0"
+                              />
+                              <input
+                                type="number"
+                                placeholder="Counted"
+                                value={entry.qty_counted}
+                                onChange={(e) => handleHiringChange(index, 'qty_counted', e.target.value)}
+                                className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
+                                min="0"
+                              />
+                              <span className="w-20 text-sm text-gray-600 font-medium text-center">
+                                Missing: <span className={Number(entry.qty_issued) - Number(entry.qty_counted) > 0 ? "text-red-600 font-semibold" : "text-green-600"}>{Number(entry.qty_issued) - Number(entry.qty_counted) || 0}</span>
+                              </span>
+                              {reportForm.hiring.length > 1 && (
+                                <button
+                                  onClick={() => removeHiringEntry(index)}
+                                  className="text-red-500 text-sm hover:text-red-700 font-medium"
+                                >
+                                  Remove
+                                </button>
+                              )}
+                            </div>
+                            
+                            {/* Mobile: Vertical stacked layout */}
+                            <div className="md:hidden space-y-3">
+                              <div>
+                                <label className="text-xs font-semibold text-gray-700 mb-1 block">Item Name</label>
+                                <input
+                                  type="text"
+                                  placeholder="Item name"
+                                  value={entry.item}
+                                  onChange={(e) => handleHiringChange(index, 'item', e.target.value)}
+                                  className="w-full border border-gray-300 rounded px-2 py-2 text-sm"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs font-semibold text-gray-700 mb-1 block">Issued Qty</label>
+                                <input
+                                  type="number"
+                                  placeholder="Issued"
+                                  value={entry.qty_issued}
+                                  onChange={(e) => handleHiringChange(index, 'qty_issued', e.target.value)}
+                                  className="w-full border border-gray-300 rounded px-2 py-2 text-sm"
+                                  min="0"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-xs font-semibold text-gray-700 mb-1 block">Counted Qty</label>
+                                <input
+                                  type="number"
+                                  placeholder="Counted"
+                                  value={entry.qty_counted}
+                                  onChange={(e) => handleHiringChange(index, 'qty_counted', e.target.value)}
+                                  className="w-full border border-gray-300 rounded px-2 py-2 text-sm"
+                                  min="0"
+                                />
+                              </div>
+                              <div className="p-3 bg-gray-50 rounded-lg">
+                                <label className="text-xs font-semibold text-gray-700 mb-1 block">Missing</label>
+                                <div className={`text-sm font-semibold text-center p-2 rounded ${
+                                  Number(entry.qty_issued) - Number(entry.qty_counted) > 0 
+                                    ? 'bg-red-100 text-red-700 border border-red-200' 
+                                    : 'bg-green-100 text-green-700 border border-green-200'
+                                }`}>
+                                  {Number(entry.qty_issued) - Number(entry.qty_counted) || 0} items
+                                </div>
+                              </div>
+                              {reportForm.hiring.length > 1 && (
+                                <button
+                                  onClick={() => removeHiringEntry(index)}
+                                  className="w-full bg-red-100 text-red-600 py-2 px-4 rounded border border-red-200 hover:bg-red-200 text-sm font-medium transition duration-200"
+                                >
+                                  Remove Item
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <button
+                        onClick={addHiringEntry}
+                        className="mt-4 px-4 py-2 bg-gradient-to-r from-[#ea176b] to-[#0cbb9b] text-white rounded-md hover:from-[#c8145a] transition duration-200 font-semibold"
+                      >
+                        + Add Hiring Item
+                      </button>
+                    </div>
+                    <div>
+                      <label className="text-sm font-semibold text-[#ea176b]">
+                        Report (Max 200 words):
+                      </label>
+                      <textarea
+                        name="report"
+                        value={reportForm.report}
+                        onChange={handleReportChange}
+                        className="mt-1 w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                        rows="5"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Word count: {reportForm.report ? reportForm.report.split(/\s+/).filter(Boolean).length : 0}/200
+                      </p>
+                    </div>
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={handleSaveReport}
+                        className="bg-blue-500 text-white font-semibold px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
+                      >
+                        Save Report
+                      </button>
+                      <button
+                        onClick={toggleEditReport}
+                        className="bg-red-500 text-white font-semibold px-4 py-2 rounded hover:bg-red-600 transition duration-200"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="text-sm font-semibold text-[#ea176b]">
-                    Report (Max 200 words):
-                  </label>
-                  <textarea
-                    name="report"
-                    value={reportForm.report}
-                    onChange={handleReportChange}
-                    className="mt-1 w-full border border-gray-300 rounded px-2 py-1 text-sm"
-                    rows="5"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    Word count: {reportForm.report ? reportForm.report.split(/\s+/).filter(Boolean).length : 0}/200
-                  </p>
-                </div>
-                <div className="flex space-x-3">
-                  <button
-                    onClick={handleSaveReport}
-                    className="bg-blue-500 text-white font-semibold px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
-                  >
-                    Save Report
-                  </button>
-                  <button
-                    onClick={toggleEditReport}
-                    className="bg-red-500 text-white font-semibold px-4 py-2 rounded hover:bg-red-600 transition duration-200"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+              )}
           {isViewingReport && (
             <div className="mt-6 p-6 border border-gray-300 rounded-lg bg-gray-50">
               <h4 className="text-lg font-bold text-[#ea176b] mb-4">Event Reports</h4>
