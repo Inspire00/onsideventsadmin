@@ -54,15 +54,15 @@ export default function Dashboard() {
 
       <div className=" max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
-         {/* Right Logo */}
-         <div className="absolute right-32 top-80 -translate-y-1.5 md:hidden">
-              <img
-                src="/Icon_GreenWeb.png" // Replace with your right logo path
-                alt="Right Logo"
-                className="h-20 w-auto" // Adjust size as needed
-              />
-            </div>
-
+            {/* Right Logo - Show only on larger screens */}
+      <div className="absolute right-4 top-80 -translate-y-1.5 hidden md:block lg:right-8 xl:right-16">
+        <img
+          src="/Icon_GreenWeb.png"
+          alt="Right Logo"
+          className="h-16 w-auto md:h-20" // Smaller on medium, normal on larger
+        />
+      </div>
+      
         <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-4 py-5 bg-gradient-to-r from-[#ea176b] to-[#0cbb9b] sm:px-6">
             <h1 className="text-2xl font-bold text-white">Dashboard</h1>
@@ -144,16 +144,16 @@ export default function Dashboard() {
 
            
         </div>
-        {/* Left Logo */}
-        <div className="absolute left-32 top-80 -translate-y-1.5 md:hidden">
-              <img
-                src="/Icon_TealWeb.png" // Replace with your left logo path
-                alt="Left Logo"
-                className="h-20 w-auto" // Adjust size as needed
-              />
-            </div>
 
+      {/* Left Logo - Show only on larger screens */}
+      <div className="absolute left-4 top-80 -translate-y-1.5 hidden md:block lg:left-8 xl:left-16">
+        <img
+          src="/Icon_TealWeb.png"
+          alt="Left Logo"
+          className="h-16 w-auto md:h-20" // Smaller on medium, normal on larger
+        />
       </div>
+
     </div>
   );
 }
