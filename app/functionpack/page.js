@@ -53,7 +53,7 @@ export default function FunctionPack() {
   });
 
   const functionManagers = ['Richard', 'Lyton', 'Other'];
-  const salesAssociates = ['Adele','Collette','Greg','Joey','Nadia','Thuli'];
+  const salesAssociates = ['Adele','Collette','Greg','Joey','Nadia','Thuli','Zoa'];
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
