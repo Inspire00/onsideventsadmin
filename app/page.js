@@ -30,7 +30,9 @@ const AUTHORIZED_EMAILS = [
   'something@onsideevents.co.za',
   'lebo@onsideevents.co.za',
   'david@onsideevents.co.za',
-  'sean@onsideevents.co.za'
+  'sean@onsideevents.co.za',
+  'account@onsideevents.co.za',
+  'themba@onsideevents.co.za',
 
   ];
 
