@@ -166,7 +166,7 @@ export default function PackUpSports() {
 
   return (
     <div className="min-h-screen bg-gray-500 py-8">
-      <div className="absolute right-32 top-80 -translate-y-1.5">
+      <div className="hidden md:block absolute right-32 top-80 -translate-y-1.5">
         <img
           src="/Icon_GreenWeb.png"
           alt="Right Logo"
@@ -391,7 +391,7 @@ export default function PackUpSports() {
         </div>
       </div>
 
-      <div className="absolute left-32 top-80 -translate-y-1.5">
+      <div className="hidden md:block absolute left-32 top-80 -translate-y-1.5">
         <img
           src="/Icon_TealWeb.png"
           alt="Left Logo"

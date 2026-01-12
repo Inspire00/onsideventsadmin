@@ -342,7 +342,7 @@ export default function FunctionPack() {
   return (
     <div className="min-h-screen bg-gray-500 py-8">
        {/* Right Logo */}
-       <div className="absolute right-32 top-80 -translate-y-1.5">
+       <div className="hidden md:block absolute right-32 top-80 -translate-y-1.5">
               <img
                 src="/Icon_GreenWeb.png" // Replace with your right logo path
                 alt="Right Logo"
@@ -868,7 +868,7 @@ export default function FunctionPack() {
       </div>
 
        {/* Left Logo */}
-       <div className="absolute left-32 top-80 -translate-y-1.5">
+       <div className="hidden md:block absolute left-32 top-80 -translate-y-1.5">
               <img
                 src="/Icon_TealWeb.png" // Replace with your left logo path
                 alt="Left Logo"
