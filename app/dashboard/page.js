@@ -49,7 +49,7 @@ export default function Dashboard() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative"> {/* Added relative for absolute positioning */}
 
   {/* Right Logo - Show only on larger screens */}
-  <div className="absolute right-4 top-80 -translate-y-1.5 hidden md:block lg:right-8 xl:right-16">
+  <div className="hidden md:block absolute right-4 top-80 -translate-y-1.5  lg:right-8 xl:right-16">
     <img
       src="/Icon_GreenWeb.png"
       alt="Right Logo"
@@ -136,7 +136,7 @@ export default function Dashboard() {
   </div>
 
   {/* Left Logo - Show only on larger screens */}
-  <div className="absolute left-4 top-80 -translate-y-1.5 hidden md:block lg:left-8 xl:left-16">
+  <div className="hidden md:block absolute left-4 top-80 -translate-y-1.5  lg:left-8 xl:left-16">
     <img
       src="/Icon_TealWeb.png"
       alt="Left Logo"
