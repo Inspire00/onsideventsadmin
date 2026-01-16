@@ -42,6 +42,8 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
   const [error, setError] = useState(null);
   const [pdfUrls, setPdfUrls] = useState({
     menu_pdf: '',
+    event_menu: '',
+    costing: '',
     hiring_pdf1: '',
     hiring_pdf2: '',
     hiring_pdf3: '',
@@ -54,6 +56,8 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
   });
   const fileInputRefs = {
     menu_pdf: useRef(null),
+    event_menu: useRef(null),
+    costing: useRef(null),
     hiring_pdf1: useRef(null),
     hiring_pdf2: useRef(null),
     hiring_pdf3: useRef(null),
@@ -64,6 +68,8 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
     hiring_pdf8: useRef(null),
     hiring_pdf9: useRef(null),
   };
+
+  const allAcceptedFormats = ".pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .png, .jpg, .jpeg";
 
   // Check if current user can delete
   const canDelete = currentUser && (
@@ -81,6 +87,8 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
     setError(null);
     setPdfUrls({
       menu_pdf: '',
+      event_menu: '',
+      costing: '',
       hiring_pdf1: '',
       hiring_pdf2: '',
       hiring_pdf3: '',
@@ -645,7 +653,7 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
       <p className="text-sm font-medium text-gray-700">
         {label}:{" "}
         <span className={event[field] ? "text-green-600" : "text-red-600"}>
-          {event[field] ? "View PDF" : "No Pdf"}
+          {event[field] ? "View Document" : "No Document"}
         </span>
       </p>
       {event[field] && (
@@ -668,7 +676,8 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
         <p className="text-sm text-black">Upload PDF:</p>
         <input
           type="file"
-          accept="application/pdf"
+          // Updated to include Word, Excel, PowerPoint, and Images
+          accept={allAcceptedFormats}
           ref={fileInputRefs[field]}
           onChange={handleFileChange(field)}
           className="text-sm"
@@ -1400,7 +1409,7 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
           )}
           <div className="mt-6">
             <div className="flex justify-between items-center">
-              <h4 className="text-lg font-bold text-gray-800">PDF Documents</h4>
+              <h4 className="text-lg font-bold text-gray-800">Attached Documents</h4>
               <button
                 className="bg-blue-500 text-white font-semibold px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
                 onClick={toggleEditPdfs}
@@ -1410,6 +1419,8 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
             </div>
             {!isEditingPdfs ? (
               <>
+                {renderPdfField("event_menu", "Event Menu")}
+                {renderPdfField("costing", "Costing")}
                 {renderPdfField("menu_pdf", "Bar 1")}
                 {renderPdfField("hiring_pdf1", "Bar 2")}
                 {renderPdfField("hiring_pdf2", "Decor 1")}
@@ -1423,6 +1434,8 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
               </>
             ) : (
               <>
+                {renderEditPdfField("event_menu", "Event Menu")}
+                {renderEditPdfField("costing", "Costing")}
                 {renderEditPdfField("menu_pdf", "Bar 1")}
                 {renderEditPdfField("hiring_pdf1", "Bar 2")}
                 {renderEditPdfField("hiring_pdf2", "Decor 1")}

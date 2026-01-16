@@ -26,6 +26,9 @@ export default function FunctionPack() {
     sales_associate: '',
     date: new Date(),
     menu_pdf: '',
+    // Added New Fields
+    event_menu: '',
+    costing: '',
     hiring_pdf1: '',
     hiring_pdf2: '',
     hiring_pdf3: '',
@@ -41,6 +44,9 @@ export default function FunctionPack() {
   const [errors, setErrors] = useState({});
   const [pdfFiles, setPdfFiles] = useState({
     menu_pdf: null,
+    // Added New File States
+    event_menu: null,
+    costing: null,
     hiring_pdf1: null,
     hiring_pdf2: null,
     hiring_pdf3: null,
@@ -51,6 +57,9 @@ export default function FunctionPack() {
     hiring_pdf8: null,
     hiring_pdf9: null
   });
+
+  // Updated accept string to include .pdf, .excel, .word, .powerpoint, and images
+  const allAcceptedFormats = ".pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .png, .jpg, .jpeg";
 
   const functionManagers = ['Richard', 'Lyton', 'Other'];
   const salesAssociates = ['Adele','Collette','Greg','Joey','Nadia','Thuli','Zoa'];
@@ -206,6 +215,24 @@ export default function FunctionPack() {
       const uploadTasks = [];
       const fileUrls = {};
       
+      if (pdfFiles.event_menu) {
+        uploadTasks.push(
+          uploadPdfToFirebase(pdfFiles.event_menu, 'event_menu_pdfs').then(url => {
+            fileUrls.event_menu = url;
+            console.log('Event Menu PDF uploaded:', url);
+          })
+        );
+      }
+
+      if (pdfFiles.costing) {
+        uploadTasks.push(
+          uploadPdfToFirebase(pdfFiles.costing, 'costing_pdfs').then(url => {
+            fileUrls.costing = url;
+            console.log('Costing PDF uploaded:', url);
+          })
+        );
+      }
+
       if (pdfFiles.menu_pdf) {
         uploadTasks.push(
           uploadPdfToFirebase(pdfFiles.menu_pdf, 'menu_pdfs').then(url => {
@@ -319,6 +346,8 @@ export default function FunctionPack() {
         hiring_pdf7: fileUrls.hiring_pdf7 || updatedFormData.hiring_pdf7,
         hiring_pdf8: fileUrls.hiring_pdf8 || updatedFormData.hiring_pdf8,
         hiring_pdf9: fileUrls.hiring_pdf9 || updatedFormData.hiring_pdf9,
+        event_menu: fileUrls.event_menu || updatedFormData.event_menu,
+        costing: fileUrls.costing || updatedFormData.costing,
         event_report: updatedFormData.event_report,
       };
       
@@ -617,7 +646,7 @@ export default function FunctionPack() {
                     type="file"
                     name="menu_pdf"
                     id="menu_pdf"
-                    accept=".pdf"
+                    accept={allAcceptedFormats}
                     onChange={handlePdfChange}
                     className="mt-1 block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
@@ -641,7 +670,7 @@ export default function FunctionPack() {
                     type="file"
                     name="hiring_pdf1"
                     id="hiring_pdf1"
-                    accept=".pdf"
+                    accept={allAcceptedFormats}
                     onChange={handlePdfChange}
                     className="mt-1 block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
@@ -656,6 +685,53 @@ export default function FunctionPack() {
                     </p>
                   )}
                 </div>
+
+                  {/* NEW UPLOAD SECTION FOR EVENT MENU AND COSTING */}
+                
+                  <div >
+                    <label htmlFor="event_menu" className="block text-medium font-medium font-semibold text-[#ea176b]">
+                      Menu
+                    </label>
+                    <input
+                      type="file"
+                      name="event_menu"
+                      id="event_menu"
+                      accept={allAcceptedFormats}
+                      onChange={handlePdfChange}
+                      className="mt-1 block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-[#ea176b] file:text-white
+                        hover:file:bg-pink-700"
+                    />
+                    {pdfFiles.event_menu && (
+                      <p className="mt-1 text-xs text-gray-500">Selected: {pdfFiles.event_menu.name}</p>
+                    )}
+                  </div>
+
+                  <div >
+                    <label htmlFor="costing" className="block text-medium font-medium font-semibold text-[#ea176b]">
+                      Costing
+                    </label>
+                    <input
+                      type="file"
+                      name="costing"
+                      id="costing"
+                      accept={allAcceptedFormats}
+                      onChange={handlePdfChange}
+                      className="mt-1 block w-full text-sm text-gray-500
+                        file:mr-4 file:py-2 file:px-4
+                        file:rounded-md file:border-0
+                        file:text-sm file:font-semibold
+                        file:bg-[#0cbb9b] file:text-white
+                        hover:file:bg-teal-700"
+                    />
+                    {pdfFiles.costing && (
+                      <p className="mt-1 text-xs text-gray-500">Selected: {pdfFiles.costing.name}</p>
+                    )}
+                  </div>
+                
                 
                 <div>
                   <label htmlFor="hiring_pdf2" className="block text-medium font-medium text-[#ea176b] ">
@@ -665,7 +741,7 @@ export default function FunctionPack() {
                     type="file"
                     name="hiring_pdf2"
                     id="hiring_pdf2"
-                    accept=".pdf"
+                    accept={allAcceptedFormats}
                     onChange={handlePdfChange}
                     className="mt-1 block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
@@ -689,7 +765,7 @@ export default function FunctionPack() {
                     type="file"
                     name="hiring_pdf3"
                     id="hiring_pdf3"
-                    accept=".pdf"
+                    accept={allAcceptedFormats}
                     onChange={handlePdfChange}
                     className="mt-1 block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
@@ -713,7 +789,7 @@ export default function FunctionPack() {
                     type="file"
                     name="hiring_pdf4"
                     id="hiring_pdf4"
-                    accept=".pdf"
+                    accept={allAcceptedFormats}
                     onChange={handlePdfChange}
                     className="mt-1 block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
@@ -737,7 +813,7 @@ export default function FunctionPack() {
                     type="file"
                     name="hiring_pdf5"
                     id="hiring_pdf5"
-                    accept=".pdf"
+                    accept={allAcceptedFormats}
                     onChange={handlePdfChange}
                     className="mt-1 block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
@@ -761,7 +837,7 @@ export default function FunctionPack() {
                     type="file"
                     name="hiring_pdf6"
                     id="hiring_pdf6"
-                    accept=".pdf"
+                    accept={allAcceptedFormats}
                     onChange={handlePdfChange}
                     className="mt-1 block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
@@ -785,7 +861,7 @@ export default function FunctionPack() {
                     type="file"
                     name="hiring_pdf7"
                     id="hiring_pdf7"
-                    accept=".pdf"
+                    accept={allAcceptedFormats}
                     onChange={handlePdfChange}
                     className="mt-1 block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
@@ -809,7 +885,7 @@ export default function FunctionPack() {
                     type="file"
                     name="hiring_pdf8 "
                     id="hiring_pdf8"
-                    accept=".pdf"
+                    accept={allAcceptedFormats}
                     onChange={handlePdfChange}
                     className="mt-1 block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
@@ -833,7 +909,7 @@ export default function FunctionPack() {
                     type="file"
                     name="hiring_pdf9"
                     id="hiring_pdf9"
-                    accept=".pdf"
+                    accept={allAcceptedFormats}
                     onChange={handlePdfChange}
                     className="mt-1 block w-full text-sm text-gray-500
                       file:mr-4 file:py-2 file:px-4
@@ -857,7 +933,7 @@ export default function FunctionPack() {
                   disabled={loading}
                   className={`w-full inline-flex justify-center py-3 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-gradient-to-r from-[#ea176b] to-[#0cbb9b] ${
                     loading ? 'opacity-50 cursor-not-allowed' : 'hover:from-[#c01059] hover:to-[#0a9a81]'
-                  } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#ea176b]`}
+                  } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#13070b]`}
                 >
                   {loading ? 'Creating...' : 'Create Event Pack'}
                 </button>
