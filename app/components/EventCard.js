@@ -69,6 +69,11 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
     hiring_pdf9: useRef(null),
   };
 
+    // Add these with your other state hooks
+  const [isDuplicating, setIsDuplicating] = useState(false);
+  const [duplicateDate, setDuplicateDate] = useState(new Date());
+  const [showDuplicatePicker, setShowDuplicatePicker] = useState(false);
+
   const allAcceptedFormats = ".pdf, .doc, .docx, .xls, .xlsx, .ppt, .pptx, .png, .jpg, .jpeg";
 
   // Check if current user can delete
@@ -213,6 +218,42 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
 
   const handleUrlChange = (field) => (e) => {
     setPdfUrls((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleDuplicateEvent = async () => {
+    setIsDuplicating(true);
+    setError(null);
+
+    try {
+      const formattedDate = `${duplicateDate.getFullYear()}/${String(duplicateDate.getMonth() + 1).padStart(2, '0')}/${String(duplicateDate.getDate()).padStart(2, '0')}`;
+      
+      // Create a new object without the original ID
+      const { id, event_report, ...eventData } = event;
+      
+      const duplicateData = {
+        ...eventData,
+        date: formattedDate,
+        // We reset reports for the new date, but keep notes and PDFs
+        event_report: [], 
+        createdAt: new Date().toISOString()
+      };
+
+      const { addDoc, collection } = await import('firebase/firestore');
+      const docRef = await addDoc(collection(db, 'function_pack'), duplicateData);
+      
+      alert(`Event duplicated successfully for ${formattedDate}!`);
+      setShowDuplicatePicker(false);
+      
+      // Optionally trigger a refresh of the list if your parent component supports it
+      if (onEventUpdate) {
+        onEventUpdate({ id: docRef.id, ...duplicateData });
+      }
+    } catch (err) {
+      console.error("Error duplicating event:", err);
+      setError("Failed to duplicate event.");
+    } finally {
+      setIsDuplicating(false);
+    }
   };
 
   const handleGuestNumChange = (e) => {
@@ -1449,6 +1490,44 @@ const EventCard = ({ event, onEventUpdate, currentUser, onEventDelete }) => {
               </>
             )}
           </div>
+
+            {/* Add this inside the isExpanded block or at the bottom of the card */}
+          <div className="mt-6 pt-4 border-t border-gray-100">
+            {!showDuplicatePicker ? (
+              <button
+                onClick={() => setShowDuplicatePicker(true)}
+                className="flex items-center space-x-2 bg-[#0cbb9b] text-white px-4 py-2 rounded shadow hover:bg-[#0aa388] transition duration-200"
+              >
+                <span>👯</span>
+                <span className="font-bold uppercase text-xs">Duplicate to Another Date</span>
+              </button>
+            ) : (
+              <div className="bg-gray-50 p-4 rounded-lg border border-dashed border-[#0cbb9b]">
+                <p className="text-sm font-bold text-gray-700 mb-2">Select new date for duplication:</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <DatePicker
+                    selected={duplicateDate}
+                    onChange={(date) => setDuplicateDate(date)}
+                    className="border border-gray-300 rounded px-3 py-2 text-sm text-black"
+                  />
+                  <button
+                    onClick={handleDuplicateEvent}
+                    disabled={isDuplicating}
+                    className="bg-[#0cbb9b] text-white px-4 py-2 rounded text-sm font-bold disabled:opacity-50"
+                  >
+                    {isDuplicating ? "Copying..." : "Confirm & Save Copy"}
+                  </button>
+                  <button
+                    onClick={() => setShowDuplicatePicker(false)}
+                    className="text-gray-500 underline text-sm"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
         </div>
       )}
 
